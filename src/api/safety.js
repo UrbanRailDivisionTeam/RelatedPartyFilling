@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // 创建 axios 实例
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: '/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
@@ -16,7 +16,8 @@ api.interceptors.request.use(
       url: config.url,
       method: config.method,
       data: config.data,
-      params: config.params
+      params: config.params,
+      baseURL: config.baseURL
     })
     return config
   },

@@ -4,14 +4,15 @@ const cors = require('cors')
 const morgan = require('morgan')
 const connectDB = require('./config/db')
 
-// 连接数据库
-connectDB()
-
 const app = express()
 
 // 中间件
 app.use(cors({
-  origin: ['http://10.31.235.91:5173', 'http://localhost:5173'],
+  origin: [
+    `http://${process.env.VITE_BACKEND_HOST}`,
+    `http://${process.env.VITE_BACKEND_HOST}:80`,
+    'http://localhost:5173'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -35,6 +36,9 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000
 const HOST = '0.0.0.0'
 
+// 先启动服务器，然后尝试连接数据库
 app.listen(PORT, HOST, () => {
   console.log(`Server is running on http://${HOST}:${PORT}`)
+  // 连接数据库
+  connectDB()
 })

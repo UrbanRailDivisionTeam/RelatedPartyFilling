@@ -8,7 +8,9 @@ export const isWechatBrowser = () => {
 
 // 生成二维码链接
 export const generateQRCode = (url) => {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`
+  // 使用环境变量中的 URL
+  const appUrl = import.meta.env.VITE_APP_URL || window.location.origin
+  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(appUrl)}`
 }
 
 // 获取微信用户信息（简化版）
