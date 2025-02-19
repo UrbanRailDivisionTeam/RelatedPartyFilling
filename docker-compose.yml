@@ -1,0 +1,51 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    ports:
+      - "80:8080"
+    environment:
+      - VITE_API_BASE_URL=http://backend:3000
+    depends_on:
+      - backend
+    networks:
+      - safety-network
+    restart: always
+    volumes:
+      - nginx_logs:/opt/bitnami/nginx/logs
+
+  backend:
+    build:
+      context: ./safety-backend
+      dockerfile: ../docker/backend/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/safety_db
+      - PORT=3000
+      - WECHAT_APPID=${WECHAT_APPID}
+      - WECHAT_SECRET=${WECHAT_SECRET}
+    depends_on:
+      - mongodb
+    networks:
+      - safety-network
+    restart: always
+
+  mongodb:
+    image: mongodb/mongodb-community-server:latest
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - safety-network
+    restart: always
+
+networks:
+  safety-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  nginx_logs: 
