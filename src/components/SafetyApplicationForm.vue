@@ -39,6 +39,7 @@
     <div class="form-section">
       <h2>作业信息 <span class="required">*</span></h2>
       
+      <!-- 作业时间和日期选择 -->
       <el-select 
         v-model="form.workingTime" 
         placeholder="申请作业时间" 
@@ -53,6 +54,7 @@
         <el-option label="三天" value="threeDays" />
       </el-select>
       
+      <!-- 日期选择器 -->
       <div class="date-range form-item">
         <el-date-picker 
           v-model="form.startDate" 
@@ -71,7 +73,6 @@
           v-model="form.endDate" 
           type="date" 
           placeholder="计划完工日期"
-          required
           value-format="YYYY-MM-DD"
           format="YYYY/M/D"
           :disabled-date="disabledEndDate"
@@ -80,10 +81,12 @@
         />
       </div>
       
+      <!-- 作业地点 -->
       <el-select 
         v-model="form.workLocation" 
         placeholder="作业地点" 
         required
+        multiple
         clearable
         @change="handleWorkLocationChange"
       >
@@ -95,16 +98,24 @@
         <el-option label="库外" value="库外" />
       </el-select>
 
-      <div class="form-item">
-        <label class="form-label">是否产品类作业：<span class="required">*</span></label>
-        <el-radio-group v-model="form.isProductWork">
-          <el-radio :label="true">是</el-radio>
-          <el-radio :label="false">否</el-radio>
-        </el-radio-group>
-      </div>
+      <!-- 作业类型 -->
+      <el-select 
+        v-model="form.workType" 
+        placeholder="作业类型" 
+        required
+        @change="handleWorkTypeChange"
+      >
+        <el-option label="质量返工" value="质量返工" />
+        <el-option label="家具维修及活动策划" value="家具维修及活动策划" />
+        <el-option label="工装工具相关作业" value="工装工具相关作业" />
+        <el-option label="现场调研" value="现场调研" />
+        <el-option label="基建施工" value="基建施工" />
+        <el-option label="生产设备维修" value="生产设备维修" />
+        <el-option label="办公设备设施维修" value="办公设备设施维修" />
+      </el-select>
 
       <!-- 产品类作业相关字段 -->
-      <template v-if="form.isProductWork">
+      <template v-if="isProductWork">
         <el-input 
           v-model="form.projectName" 
           placeholder="项目名称" 
@@ -122,21 +133,7 @@
         />
       </template>
 
-      <el-select 
-        v-model="form.workType" 
-        placeholder="作业类型" 
-        required
-        @change="handleWorkTypeChange"
-      >
-        <el-option label="家具维修及活动策划" value="家具维修及活动策划" />
-        <el-option label="工装工具相关作业" value="工装工具相关作业" />
-        <el-option label="现场调研" value="现场调研" />
-        <el-option label="质量返工" value="质量返工" />
-        <el-option label="基建施工" value="基建施工" />
-        <el-option label="生产设备维修" value="生产设备维修" />
-        <el-option label="办公设备设施维修" value="办公设备设施维修" />
-      </el-select>
-
+      <!-- 作业内容 -->
       <el-select 
         v-model="form.workContent" 
         placeholder="具体作业内容"
@@ -178,20 +175,17 @@
         v-model="form.dangerTypes"
         @change="handleDangerTypesChange"
       >
-        <el-checkbox label="动火">动火</el-checkbox>
-        <el-checkbox label="登高">登高</el-checkbox>
-        <el-checkbox label="临边">临边</el-checkbox>
-        <el-checkbox label="临时用电">临时用电</el-checkbox>
-        <el-checkbox label="进入有限空间">进入有限空间</el-checkbox>
-        <el-checkbox label="吊装作业">吊装作业</el-checkbox>
-        <el-checkbox label="带电作业">带电作业</el-checkbox>
+        <el-checkbox label="动火">动火作业</el-checkbox>
+        <el-checkbox label="登高临边">登高临边作业</el-checkbox>
+        <el-checkbox label="起重">起重作业</el-checkbox>
+        <el-checkbox label="受限空间">受限空间作业</el-checkbox>
       </el-checkbox-group>
 
       <div class="form-item">
         <label class="form-label">是否危险作业：<span class="required">*</span></label>
         <el-radio-group 
           v-model="form.isDangerousWork"
-          :disabled="form.workLocation === '库外' || form.dangerTypes.length > 0"
+          :disabled="form.workLocation.includes('库外') || form.dangerTypes.length > 0"
         >
           <el-radio :label="true">是</el-radio>
           <el-radio :label="false">否</el-radio>
@@ -199,20 +193,24 @@
       </div>
     </div>
 
-    <!-- 通知人信息 -->
+    <!-- 事业部对接人信息 -->
     <div class="form-section">
-      <h2>通知人信息 <span class="required">*</span></h2>
+      <h2>事业部对接人信息 <span class="required">*</span></h2>
       <el-input 
         v-model="form.notifierName" 
-        placeholder="通知人姓名" 
+        placeholder="对接人姓名" 
         required 
       />
       <el-input 
         v-model="form.notifierNumber" 
-        placeholder="通知人工号" 
-        required
+        placeholder="对接人工号（选填，12位工号）" 
         :maxlength="12"
         @blur="validateNotifierNumber"
+      />
+      <el-input 
+        v-model="form.notifierDepartment" 
+        placeholder="所属部门" 
+        required 
       />
     </div>
 
@@ -281,7 +279,7 @@ const form = ref({
   isProductWork: false,
   projectName: '',
   vehicleNumber: '',
-  workLocation: '',
+  workLocation: [],
   trackPosition: '',
   workType: '',
   workContent: '',
@@ -295,6 +293,7 @@ const form = ref({
   // 通知人信息
   notifierName: '',
   notifierNumber: '',
+  notifierDepartment: '',
   
   // 随行人员信息
   accompaningCount: 0,
@@ -338,15 +337,48 @@ const workContentOptions = computed(() => {
   return form.value.workType ? workContentMap[form.value.workType] : []
 })
 
-// 处理作业类型变更
+// 添加计算属性判断是否为产品类作业
+const isProductWork = computed(() => {
+  return form.value.workType === '质量返工'
+})
+
+// 修改作业类型变更处理函数
 const handleWorkTypeChange = () => {
-  form.value.workContent = '' // 清空作业内容
+  // 清空作业内容
+  form.value.workContent = ''
+  
+  // 根据作业类型自动设置是否为产品类作业（后台仍保存该字段）
+  form.value.isProductWork = form.value.workType === '质量返工'
+  
+  // 如果不是产品类作业，清空产品相关字段
+  if (!form.value.isProductWork) {
+    form.value.projectName = ''
+    form.value.vehicleNumber = ''
+    form.value.trackPosition = ''
+  }
 }
 
-// 处理危险类型变更
+// 修改作业地点变更处理函数
+const handleWorkLocationChange = (values) => {
+  console.log('作业地点变更:', values)
+  form.value.workLocation = values || []
+  
+  // 如果选择包含库外作业，自动设置为危险作业并锁定
+  if (values.includes('库外')) {
+    form.value.isDangerousWork = true
+  } else if (form.value.dangerTypes.length === 0) {
+    // 如果不包含库外且没有选择危险作业类型，则允许修改危险作业状态
+    form.value.isDangerousWork = false
+  }
+}
+
+// 修改危险作业类型变更处理函数
 const handleDangerTypesChange = (values) => {
   if (values.length > 0) {
     form.value.isDangerousWork = true
+  } else if (!form.value.workLocation.includes('库外')) {
+    // 只有当没有选择库外作业时，才允许修改为非危险作业
+    form.value.isDangerousWork = false
   }
 }
 
@@ -414,7 +446,47 @@ const validateAccompaningPhoneNumber = (e, index) => {
   }
 }
 
-// 添加表单验证规则
+// 计算是否需要结束日期
+const needsEndDate = computed(() => {
+  return ['twoDays', 'threeDays'].includes(form.value.workingTime)
+})
+
+// 处理作业时间变更
+const handleWorkingTimeChange = () => {
+  // 如果不需要结束日期，清空结束日期并触发验证
+  if (!needsEndDate.value) {
+    form.value.endDate = ''
+    formRef.value?.clearValidate(['endDate'])
+  }
+}
+
+// 验证日期范围
+const validateDateRange = () => {
+  // 如果不需要结束日期，直接返回
+  if (!needsEndDate.value) {
+    return
+  }
+  
+  if (!form.value.startDate || !form.value.endDate) return
+  
+  const start = new Date(form.value.startDate)
+  const end = new Date(form.value.endDate)
+  const daysDiff = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1
+  
+  if (form.value.workingTime === 'twoDays' && daysDiff !== 2) {
+    ElMessage.error('两天作业必须选择相邻的两天')
+    form.value.endDate = ''
+    return
+  }
+  
+  if (form.value.workingTime === 'threeDays' && daysDiff !== 3) {
+    ElMessage.error('三天作业必须选择连续的三天')
+    form.value.endDate = ''
+    return
+  }
+}
+
+// 修改表单验证规则
 const rules = {
   // 基本信息
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
@@ -425,19 +497,18 @@ const rules = {
   // 作业信息
   workingTime: [{ required: true, message: '请选择作业时间', trigger: 'change' }],
   startDate: [{ required: true, message: '请选择开工日期', trigger: 'change' }],
-  endDate: [{ required: true, message: '请选择完工日期', trigger: 'change' }],
   workLocation: [{ required: true, message: '请选择作业地点', trigger: 'change' }],
   workType: [{ required: true, message: '请选择作业类型', trigger: 'change' }],
   workContent: [{ required: true, message: '请选择作业内容', trigger: 'change' }],
   
   // 通知人信息
-  notifierName: [{ required: true, message: '请输入通知人姓名', trigger: 'blur' }],
-  notifierNumber: [{ required: true, message: '请输入通知人工号', trigger: 'blur' }]
+  notifierName: [{ required: true, message: '请输入对接人姓名', trigger: 'blur' }],
+  notifierDepartment: [{ required: true, message: '请输入所属部门', trigger: 'blur' }]
 }
 
 const formRef = ref(null)
 
-// 添加表单验证函数
+// 修改表单验证函数
 const validateForm = () => {
   // 基本信息验证
   if (!form.value.name?.trim()) throw new Error('请填写姓名')
@@ -448,8 +519,13 @@ const validateForm = () => {
   // 作业信息验证
   if (!form.value.workingTime) throw new Error('请选择作业时间')
   if (!form.value.startDate) throw new Error('请选择开工日期')
-  if (!form.value.endDate) throw new Error('请选择完工日期')
-  if (!form.value.workLocation?.trim()) throw new Error('请选择作业地点')
+  
+  // 只在选择两天或三天作业时验证完工日期
+  if (['twoDays', 'threeDays'].includes(form.value.workingTime)) {
+    if (!form.value.endDate) throw new Error('请选择完工日期')
+  }
+  
+  if (!form.value.workLocation?.length) throw new Error('请选择作业地点')
   if (!form.value.workType?.trim()) throw new Error('请选择作业类型')
   if (!form.value.workContent?.trim()) throw new Error('请选择作业内容')
 
@@ -467,8 +543,8 @@ const validateForm = () => {
   }
 
   // 通知人信息验证
-  if (!form.value.notifierName?.trim()) throw new Error('请填写通知人姓名')
-  if (!form.value.notifierNumber?.trim()) throw new Error('请填写通知人工号')
+  if (!form.value.notifierName?.trim()) throw new Error('请填写对接人姓名')
+  if (!form.value.notifierDepartment?.trim()) throw new Error('请填写所属部门')
 
   // 随行人员验证
   if (form.value.accompaningCount > 0) {
@@ -486,30 +562,39 @@ const validateForm = () => {
 // 修改提交处理函数
 const handleSubmit = async () => {
   try {
-    // 表单验证
-    validateForm()
-    
-    // 处理随行人员数据
-    const submitData = {
-      ...form.value,
-      // 确保随行人员数据正确
-      accompaningPersons: form.value.accompaningCount > 0 ? 
-        form.value.accompaningPersons.slice(0, form.value.accompaningCount).map(person => ({
-          name: person.name,
-          idNumber: person.idNumber,
-          phoneNumber: person.phoneNumber
-        })) : []
+    // 如果不是两天或三天作业，清空完工日期
+    if (!['twoDays', 'threeDays'].includes(form.value.workingTime)) {
+      form.value.endDate = ''
     }
     
-    console.log('提交的随行人员数据:', submitData.accompaningPersons)
+    // 进行表单验证
+    const valid = await formRef.value.validate()
+    if (!valid) {
+      throw new Error('表单验证失败')
+    }
     
-    // 提交数据
-    await store.submitApplication(submitData)
-    ElMessage.success('提交成功')
-    router.push('/success')
+    // 进行自定义验证
+    validateForm()
+    
+    // 准备提交数据
+    const submitData = {
+      ...form.value,
+      userId: store.userInfo?.wxId,
+      // 确保 workLocation 是数组
+      workLocation: Array.isArray(form.value.workLocation) ? form.value.workLocation : []
+    }
+    
+    // 提交申请
+    const result = await store.submitApplication(submitData)
+    
+    // 提交成功后跳转
+    router.push({
+      path: '/success',
+      query: { applicationNumber: result.applicationNumber }
+    })
   } catch (error) {
     console.error('提交失败:', error)
-    ElMessage.error(error.message || '提交失败，请重试')
+    ElMessage.error(error.message || '提交失败')
   }
 }
 
@@ -519,11 +604,13 @@ watch(form, (newValue) => {
   // 确保必填字段有值
   const formData = {
     ...newValue,
-    workLocation: newValue.workLocation || '',
+    workLocation: newValue.workLocation || [],
     workType: newValue.workType || '',
     workContent: newValue.workContent || '',
     notifierName: newValue.notifierName || '',
-    notifierNumber: newValue.notifierNumber || ''
+    notifierNumber: newValue.notifierNumber || '',
+    notifierDepartment: newValue.notifierDepartment || '',
+    notifierPhone: newValue.notifierPhone || ''
   }
   store.setApplicationForm(formData)
 }, { deep: true })
@@ -556,7 +643,8 @@ const getLastApplication = () => {
         isProductWork: lastRecord.isProductWork || false,
         projectName: lastRecord.projectName || '',
         vehicleNumber: lastRecord.vehicleNumber || '',
-        workLocation: lastRecord.workLocation || '',
+        workLocation: Array.isArray(lastRecord.workLocation) ? 
+          [...lastRecord.workLocation] : [],
         trackPosition: lastRecord.trackPosition || '',
         workType: lastRecord.workType || '',
         workContent: lastRecord.workContent || '',
@@ -571,6 +659,8 @@ const getLastApplication = () => {
         // 通知人信息
         notifierName: lastRecord.notifierName || '',
         notifierNumber: lastRecord.notifierNumber || '',
+        notifierDepartment: lastRecord.notifierDepartment || '',
+        notifierPhone: lastRecord.notifierPhone || '',
         
         // 随行人员信息
         accompaningCount: lastRecord.accompaningCount || 0,
@@ -651,57 +741,6 @@ const disabledEndDate = (time) => {
   if (!form.value.startDate) return true
   const startTime = new Date(form.value.startDate).getTime()
   return time.getTime() < startTime // 禁用开始日期之前的日期
-}
-
-// 计算是否需要结束日期
-const needsEndDate = computed(() => {
-  return ['twoDays', 'threeDays'].includes(form.value.workingTime)
-})
-
-// 处理作业时间变更
-const handleWorkingTimeChange = () => {
-  // 如果不需要结束日期，清空结束日期
-  if (!needsEndDate.value) {
-    form.value.endDate = ''
-  }
-}
-
-// 验证日期范围
-const validateDateRange = () => {
-  if (!needsEndDate.value || !form.value.startDate || !form.value.endDate) return
-  
-  const start = new Date(form.value.startDate)
-  const end = new Date(form.value.endDate)
-  const daysDiff = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1
-  
-  if (form.value.workingTime === 'twoDays' && daysDiff !== 2) {
-    ElMessage.error('两天作业必须选择相邻的两天')
-    form.value.endDate = ''
-    return
-  }
-  
-  if (form.value.workingTime === 'threeDays' && daysDiff !== 3) {
-    ElMessage.error('三天作业必须选择连续的三天')
-    form.value.endDate = ''
-    return
-  }
-}
-
-// 修改作业地点变更处理函数
-const handleWorkLocationChange = (value) => {
-  console.log('作业地点变更:', value)
-  form.value.workLocation = value || ''
-  
-  // 如果选择库外作业，自动设置为危险作业并锁定
-  if (value === '库外') {
-    form.value.isDangerousWork = true
-  }
-  
-  // 立即同步到 store
-  store.setApplicationForm({
-    ...form.value,
-    workLocation: value || ''
-  })
 }
 </script>
 

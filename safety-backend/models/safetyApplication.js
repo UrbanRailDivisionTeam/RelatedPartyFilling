@@ -33,7 +33,10 @@ const safetyApplicationSchema = new mongoose.Schema({
   isProductWork: Boolean,
   projectName: String,
   vehicleNumber: String,
-  workLocation: String,
+  workLocation: {
+    type: [String],
+    required: true
+  },
   trackPosition: String,
   workType: String,
   workContent: String,
@@ -47,6 +50,7 @@ const safetyApplicationSchema = new mongoose.Schema({
   // 通知人信息
   notifierName: String,
   notifierNumber: String,
+  notifierDepartment: String,
   
   // 随行人员信息
   accompaningCount: {
