@@ -176,9 +176,10 @@
         @change="handleDangerTypesChange"
       >
         <el-checkbox label="动火">动火作业</el-checkbox>
-        <el-checkbox label="登高临边">登高临边作业</el-checkbox>
+        <el-checkbox label="登高">登高作业</el-checkbox>
+        <el-checkbox label="临边">临边作业</el-checkbox>
         <el-checkbox label="起重">起重作业</el-checkbox>
-        <el-checkbox label="受限空间">受限空间作业</el-checkbox>
+        <el-checkbox label="有限空间">有限空间作业</el-checkbox>
       </el-checkbox-group>
 
       <div class="form-item">
