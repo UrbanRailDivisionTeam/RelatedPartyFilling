@@ -1,19 +1,19 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { isWechatBrowser } from '@/utils/wechat'
+import { isWechatBrowser, generateQRCode } from '@/utils/wechat'
 import { Plus, Document } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 
 const isWechat = ref(false)
-const appUrl = ref('')
+const qrCodeUrl = ref('')
 
 onMounted(() => {
   isWechat.value = isWechatBrowser()
   
   if (!isWechat.value) {
-    // 获取应用访问地址
-    appUrl.value = import.meta.env.VITE_APP_URL || window.location.origin
-    console.log('App URL:', appUrl.value)
+    // 生成二维码
+    const appUrl = import.meta.env.VITE_APP_URL || window.location.origin
+    qrCodeUrl.value = generateQRCode(appUrl)
+    console.log('App URL:', appUrl)
   }
 })
 </script>
@@ -24,21 +24,9 @@ onMounted(() => {
     
     <!-- 根据环境显示不同内容 -->
     <template v-if="!isWechat">
-      <div class="link-container">
-        <p class="instruction">请使用手机微信访问以下链接：</p>
-        <div class="link-box">
-          <span class="link-text">{{ appUrl }}</span>
-          <el-button 
-            type="primary" 
-            size="small"
-            @click="() => {
-              navigator.clipboard.writeText(appUrl);
-              ElMessage.success('链接已复制');
-            }"
-          >
-            复制链接
-          </el-button>
-        </div>
+      <div class="qrcode-container">
+        <p class="instruction">请使用手机微信扫描下方二维码：</p>
+        <img :src="qrCodeUrl" alt="微信扫码" class="qrcode" />
       </div>
     </template>
     
@@ -68,7 +56,7 @@ onMounted(() => {
   text-align: center;
 }
 
-.link-container {
+.qrcode-container {
   margin-top: 40px;
   padding: 20px;
   background: #f5f7fa;
@@ -81,21 +69,11 @@ onMounted(() => {
   font-size: 16px;
 }
 
-.link-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.link-text {
-  padding: 8px 15px;
-  background: #fff;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
-  color: #409EFF;
-  font-size: 14px;
+.qrcode {
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+  display: block;
 }
 
 .action-cards {
