@@ -1,5 +1,3 @@
-import axios from 'axios'
-
 // 检查是否在微信环境中
 export const isWechatBrowser = () => {
   const ua = navigator.userAgent.toLowerCase()
