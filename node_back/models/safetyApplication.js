@@ -25,7 +25,7 @@ const safetyApplicationSchema = new mongoose.Schema({
   idNumber: String,
   companyName: String,
   phoneNumber: String,
-  
+
   // 作业信息
   workingTime: [String],
   startDate: Date,
@@ -42,16 +42,16 @@ const safetyApplicationSchema = new mongoose.Schema({
   workContent: String,
   workBasis: String,
   basisNumber: String,
-  
+
   // 危险作业信息
   dangerTypes: [String],
   isDangerousWork: Boolean,
-  
+
   // 通知人信息
   notifierName: String,
   notifierNumber: String,
   notifierDepartment: String,
-  
+
   // 随行人员信息
   accompaningCount: {
     type: Number,

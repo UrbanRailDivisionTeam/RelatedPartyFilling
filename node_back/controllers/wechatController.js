@@ -3,7 +3,7 @@ const axios = require('axios')
 exports.getUserInfo = async (req, res) => {
   try {
     const { code } = req.body
-    
+
     // 获取 access_token
     const tokenResponse = await axios.get('https://api.weixin.qq.com/sns/oauth2/access_token', {
       params: {
@@ -13,9 +13,9 @@ exports.getUserInfo = async (req, res) => {
         grant_type: 'authorization_code'
       }
     })
-    
+
     const { access_token, openid } = tokenResponse.data
-    
+
     // 获取用户信息
     const userInfoResponse = await axios.get('https://api.weixin.qq.com/sns/userinfo', {
       params: {
@@ -24,7 +24,7 @@ exports.getUserInfo = async (req, res) => {
         lang: 'zh_CN'
       }
     })
-    
+
     // 返回用户信息
     res.json({
       success: true,

@@ -8,7 +8,7 @@ const qrCodeUrl = ref('')
 
 onMounted(() => {
   isWechat.value = isWechatBrowser()
-  
+
   if (!isWechat.value) {
     // 生成二维码
     const appUrl = import.meta.env.VITE_APP_URL || window.location.origin
@@ -21,7 +21,7 @@ onMounted(() => {
 <template>
   <div class="home-container">
     <h1>安全作业申请系统</h1>
-    
+
     <!-- 根据环境显示不同内容 -->
     <template v-if="!isWechat">
       <div class="qrcode-container">
@@ -29,17 +29,21 @@ onMounted(() => {
         <img :src="qrCodeUrl" alt="微信扫码" class="qrcode" />
       </div>
     </template>
-    
+
     <template v-else>
       <div class="action-cards">
         <el-card class="action-card" @click="$router.push('/apply')">
-          <el-icon size="40"><Plus /></el-icon>
+          <el-icon size="40">
+            <Plus />
+          </el-icon>
           <h2>新建申请</h2>
           <p>创建新的安全作业申请</p>
         </el-card>
-        
+
         <el-card class="action-card" @click="$router.push('/records')">
-          <el-icon size="40"><Document /></el-icon>
+          <el-icon size="40">
+            <Document />
+          </el-icon>
           <h2>申请记录</h2>
           <p>查看历史申请记录</p>
         </el-card>

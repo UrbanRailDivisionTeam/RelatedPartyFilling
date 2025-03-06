@@ -41,7 +41,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title ? `${to.meta.title} - 安全作业申请系统` : '安全作业申请系统'
-  
+
   // 首页不需要检查微信环境
   if (to.path === '/') {
     next()
@@ -54,11 +54,11 @@ router.beforeEach((to, from, next) => {
     next('/')
     return
   }
-  
+
   // 检查是否需要微信授权
   const store = useSafetyApplicationStore()
   const userInfo = store.getUserInfo()
-  
+
   if (!userInfo && to.path !== '/auth') {
     next('/auth')
   } else {

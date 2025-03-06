@@ -48,7 +48,7 @@ export const useSafetyApplicationStore = defineStore('safety-application', {
     // 获取用户信息
     getUserInfo() {
       if (this.userInfo) return this.userInfo
-      
+
       // 从 localStorage 获取用户信息
       const savedInfo = localStorage.getItem('wxUserInfo')
       if (savedInfo) {
@@ -64,7 +64,7 @@ export const useSafetyApplicationStore = defineStore('safety-application', {
     },
     setApplicationForm(formData) {
       console.log('正在设置表单数据:', formData)
-      
+
       // 确保所有字段都有默认值
       this.applicationForm = {
         name: '',
@@ -91,7 +91,7 @@ export const useSafetyApplicationStore = defineStore('safety-application', {
         accompaningPersons: [],
         ...formData
       }
-      
+
       console.log('设置后的表单数据:', this.applicationForm)
     },
     async loadHistoricalRecord() {
@@ -102,7 +102,7 @@ export const useSafetyApplicationStore = defineStore('safety-application', {
         // 从后端 API 获取历史记录
         const response = await safetyApi.getHistoricalRecords(this.userInfo.wxId)
         this.historicalRecords = response.data || []
-        
+
         // 保存到本地存储
         localStorage.setItem('safetyRecords', JSON.stringify(this.historicalRecords))
       } catch (error) {
@@ -140,21 +140,21 @@ export const useSafetyApplicationStore = defineStore('safety-application', {
           status: '审核中',
           ...formData
         }
-        
+
         console.log('准备提交的完整数据:', newRecord)
-        
+
         // 调用后端 API
         const response = await safetyApi.submitApplication(newRecord)
         console.log('提交响应:', response)
-        
+
         if (!response.success) {
           throw new Error(response.message || '提交失败')
         }
-        
+
         // 更新本地历史记录
         this.historicalRecords.unshift(response.data || newRecord)
         localStorage.setItem('safetyRecords', JSON.stringify(this.historicalRecords))
-        
+
         return response.data || newRecord
       } catch (error) {
         console.error('提交申请失败:', error)

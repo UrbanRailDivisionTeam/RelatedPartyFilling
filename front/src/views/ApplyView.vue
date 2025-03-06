@@ -27,7 +27,7 @@ onMounted(async () => {
 
     // 加载历史记录
     await store.loadHistoricalRecord()
-    
+
     // 获取最后一次申请记录
     const lastRecord = store.getLastUserApplication(userInfo.wxId)
     console.log('最后一次申请记录:', lastRecord)
@@ -38,7 +38,7 @@ onMounted(async () => {
       delete formData.submitTime
       delete formData.applicationNumber
       delete formData.status
-      
+
       // 更新表单数据
       form.value = { ...form.value, ...formData }
       console.log('设置的表单数据:', form.value)
