@@ -1,85 +1,51 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <el-container class="layout-container">
+    <el-header>
+        <el-menu mode="horizontal" :router="true" :default-active="$route.path" class="nav-menu">
+          <el-menu-item index="/">首页</el-menu-item>
+          <el-menu-item index="/apply">新建申请</el-menu-item>
+          <el-menu-item index="/records">申请记录</el-menu-item>
+        </el-menu>
+    </el-header>
+    <el-main>
+      <RouterView />
+    </el-main>
+    <el-footer>
+      <p>© 2024 安全作业申请系统 - All Rights Reserved</p>
+    </el-footer>
+  </el-container>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.layout-container {
+  min-height: 100vh;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.el-header {
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  padding: 0;
 }
 
-nav {
+.nav-menu {
   width: 100%;
-  font-size: 12px;
+  justify-content: center;
+}
+
+.el-main {
+  background-color: #f5f7fa;
+  padding: 20px;
+}
+
+.el-footer {
   text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+  color: #909399;
+  padding: 20px;
+  background-color: #fff;
+  border-top: 1px solid #eee;
 }
 </style>
