@@ -12,8 +12,8 @@ onMounted(() => {
   if (!isWechat.value) {
     // 生成二维码
     const appUrl = import.meta.env.VITE_APP_URL || window.location.origin
-    qrCodeUrl.value = generateQRCode(appUrl)
     console.log('App URL:', appUrl)
+    qrCodeUrl.value = generateQRCode(appUrl)
   }
 })
 </script>

@@ -1,3 +1,6 @@
+<script setup>
+</script>
+
 <template>
   <el-container class="layout-container">
     <el-header>
@@ -5,12 +8,7 @@
         <h1 v-if="$route.path !== '/'" @click="$router.push('/')" style="cursor: pointer">
           安全作业申请系统
         </h1>
-        <el-menu
-          mode="horizontal"
-          :router="true"
-          :default-active="$route.path"
-          class="nav-menu"
-        >
+        <el-menu mode="horizontal" :router="true" :default-active="$route.path" class="nav-menu">
           <el-menu-item index="/">首页</el-menu-item>
           <el-menu-item index="/apply">新建申请</el-menu-item>
           <el-menu-item index="/records">申请记录</el-menu-item>
@@ -66,11 +64,11 @@
     justify-content: space-between;
     height: 100%;
   }
-  
+
   .header-content h1 {
     margin: 0;
   }
-  
+
   .nav-menu {
     width: auto;
   }

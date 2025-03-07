@@ -64,6 +64,7 @@ export const safetyApi = {
     return api.patch(`/safety/applications/${applicationId}/status`, { status })
   },
 
+  // 获取用户信息
   getUserInfo(wxId) {
     return api.get(`/safety/user/${wxId}`)
   }

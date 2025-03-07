@@ -149,11 +149,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { useSafetyApplicationStore } from '@/stores/safetyApplication'
-import { ElMessage } from 'element-plus'
 
-const router = useRouter()
 const store = useSafetyApplicationStore()
 const records = ref([])
 const detailDialogVisible = ref(false)
