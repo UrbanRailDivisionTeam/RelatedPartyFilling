@@ -1,21 +1,35 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
+import { useAppStore } from '@/stores/counter';
+
+const store = useAppStore()
+const isLogin = ref(false)
+onMounted(async () => {
+  isLogin.value = (store.userId === null)
+})
 </script>
 
 <template>
   <el-container class="layout-container">
     <el-header>
-        <el-menu mode="horizontal" :router="true" :default-active="$route.path" class="nav-menu">
-          <el-menu-item index="/">首页</el-menu-item>
-          <el-menu-item index="/apply">新建申请</el-menu-item>
+      <el-menu mode="horizontal" :router="true" :default-active="$route.path" class="nav-menu">
+        <el-menu-item index="/">首页</el-menu-item>
+        <el-menu-item index="/scan">手机扫码</el-menu-item>
+        <el-menu-item index="/apply">新建申请</el-menu-item>
+        <template v-if="isLogin.value">
+          <el-menu-item index="/login">登录</el-menu-item>
+        </template>
+        <template v-else>
           <el-menu-item index="/records">申请记录</el-menu-item>
-        </el-menu>
+        </template>
+      </el-menu>
     </el-header>
     <el-main>
       <RouterView />
     </el-main>
     <el-footer>
-      <p>© 2024 安全作业申请系统 - All Rights Reserved</p>
+      <p>© 2025 城轨事业部精益信息化组 - All Rights Reserved</p>
     </el-footer>
   </el-container>
 </template>

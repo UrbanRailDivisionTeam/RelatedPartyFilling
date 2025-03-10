@@ -1,7 +1,7 @@
 <template>
   <div class="records-container">
     <h1>申请记录</h1>
-    
+
     <!-- 移动端记录列表 -->
     <div class="mobile-records">
       <el-card v-for="record in records" :key="record.applicationNumber" class="record-card">
@@ -20,13 +20,7 @@
     </div>
 
     <!-- 详情对话框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      title="申请详情"
-      width="95%"
-      :fullscreen="true"
-      custom-class="mobile-dialog"
-    >
+    <el-dialog v-model="detailDialogVisible" title="申请详情" width="95%" :fullscreen="true" custom-class="mobile-dialog">
       <div v-if="currentRecord" class="detail-content">
         <div class="detail-section">
           <h3>基本信息</h3>
@@ -74,7 +68,7 @@
             <label>是否产品类作业：</label>
             <span>{{ currentRecord.isProductWork ? '是' : '否' }}</span>
           </div>
-          
+
           <!-- 产品类作业相关信息 -->
           <template v-if="currentRecord.isProductWork">
             <div class="info-item">
@@ -90,7 +84,7 @@
               <span>{{ currentRecord.trackPosition }}</span>
             </div>
           </template>
-          
+
           <!-- 质量返工相关信息 -->
           <template v-if="currentRecord.workType === '质量返工'">
             <div class="info-item">
@@ -149,7 +143,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useSafetyApplicationStore } from '@/stores/safetyApplication'
+import { useSafetyApplicationStore } from '@/stores/useAppStore'
 
 const store = useSafetyApplicationStore()
 const records = ref([])
@@ -296,16 +290,18 @@ onMounted(async () => {
 }
 
 .close-btn {
-  width: 120px;  /* 设置固定宽度 */
+  width: 120px;
+  /* 设置固定宽度 */
 }
 
 @media (max-width: 768px) {
   .dialog-footer {
     justify-content: center;
   }
-  
+
   .close-btn {
-    width: 160px;  /* 在移动端设置更大的宽度 */
+    width: 160px;
+    /* 在移动端设置更大的宽度 */
   }
 }
-</style> 
+</style>

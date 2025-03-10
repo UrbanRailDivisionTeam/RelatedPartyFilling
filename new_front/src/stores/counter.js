@@ -1,12 +1,34 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useAppStore = defineStore('counter', () => {
-  const count = ref(0)
-  const doubleCount = computed(() => count.value * 2)
-  function increment() {
-    count.value++
-  }
-
-  return { count, doubleCount, increment }
+  const userId = ref(null)
+  const from = ref({
+    applicationForm: {
+      name: '',
+      idNumber: '',
+      companyName: '',
+      phoneNumber: '',
+      workingTime: [],
+      startDate: '',
+      endDate: '',
+      isProductWork: false,
+      projectName: '',
+      vehicleNumber: '',
+      workLocation: '',
+      trackPosition: '',
+      workType: '',
+      workContent: '',
+      workBasis: '',
+      basisNumber: '',
+      dangerTypes: [],
+      isDangerousWork: false,
+      notifierName: '',
+      notifierNumber: '',
+      accompaningCount: 0,
+      accompaningPersons: []
+    },
+    historicalRecords: []
+  })
+  return { userId, from }
 })
