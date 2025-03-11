@@ -8,6 +8,8 @@ export const generateQRCode = (url) => {
 
 // ------------------后端api------------------
 import axios from 'axios'
+import { useAppStore } from '@/stores/counter'
+const store = useAppStore()
 // 创建 axios 实例
 const api = axios.create({
   baseURL: '/api',
@@ -21,7 +23,7 @@ const api = axios.create({
 export const safetyApi = {
   // 提交申请
   submitApplication() {
-    return api.post('/safety/applications', store.from)
+    return api.post('/safety/applications', store.from.applicationForm)
   },
   // 获取历史记录
   getHistoricalRecords() {

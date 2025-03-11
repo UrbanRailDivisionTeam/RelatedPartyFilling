@@ -140,7 +140,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAppStore } from '@/stores/counter'
-import { safetyApi } from '@/utils/utils' 
+import { safetyApi } from '@/utils/utils'
 
 const store = useAppStore()
 const router = useRouter()
@@ -472,6 +472,11 @@ const handleSubmit = async () => {
 // 监听表单数据变化
 watch(form, (newValue) => {
   console.log('表单数据变化:', newValue)
+  // 如果填写了电话号自动更新
+  if (store.userId === null && newValue.phoneNumber !== null) {
+    store.userId = newValue.phoneNumber
+    store.from.historicalRecords = safetyApi.getHistoricalRecords()
+  }
   // 确保必填字段有值
   const formData = {
     ...newValue,
@@ -486,122 +491,35 @@ watch(form, (newValue) => {
   store.from.applicationForm = formData
 }, { deep: true })
 
-// 获取上次申请记录
-const getLastApplication = () => {
+onMounted(async () => {
   try {
-    const userId = store.userInfo?.wxId
-    if (!userId) {
-      console.warn('未获取到用户ID')
-      return
-    }
-
-    const lastRecord = store.getLastUserApplication(userId)
-    if (lastRecord) {
-      console.log('获取到的上次申请记录:', lastRecord)
-
-      // 填充表单数据，但不包括时间相关字段
-      form.value = {
-        // 基本信息
-        name: lastRecord.name || '',
-        idNumber: lastRecord.idNumber || '',
-        companyName: lastRecord.companyName || '',
-        phoneNumber: lastRecord.phoneNumber || '',
-
-        // 作业信息
-        workingTime: '', // 清空作业时间
-        startDate: '', // 清空开始日期
-        endDate: '', // 清空结束日期
-        isProductWork: lastRecord.isProductWork || false,
-        projectName: lastRecord.projectName || '',
-        vehicleNumber: lastRecord.vehicleNumber || '',
-        workLocation: Array.isArray(lastRecord.workLocation) ?
-          [...lastRecord.workLocation] : [],
-        trackPosition: lastRecord.trackPosition || '',
-        workType: lastRecord.workType || '',
-        workContent: lastRecord.workContent || '',
-        workBasis: lastRecord.workBasis || '',
-        basisNumber: lastRecord.basisNumber || '',
-
-        // 危险作业信息
-        dangerTypes: Array.isArray(lastRecord.dangerTypes) ?
-          [...lastRecord.dangerTypes] : [],
-        isDangerousWork: lastRecord.isDangerousWork || false,
-
-        // 通知人信息
-        notifierName: lastRecord.notifierName || '',
-        notifierNumber: lastRecord.notifierNumber || '',
-        notifierDepartment: lastRecord.notifierDepartment || '',
-        notifierPhone: lastRecord.notifierPhone || '',
-
-        // 随行人员信息
-        accompaningCount: lastRecord.accompaningCount || 0,
-        accompaningPersons: Array.isArray(lastRecord.accompaningPersons) ?
-          lastRecord.accompaningPersons.map(person => ({
-            name: person.name || '',
-            idNumber: person.idNumber || '',
-            phoneNumber: person.phoneNumber || ''
-          })) : []
+    if (store.userId === null) { ElMessage.warning('用户未登录，无法获取历史提交') }
+    else {
+      const storeForm = store.applicationForm
+      if (storeForm) {
+        Object.keys(form.value).forEach(key => {
+          if (storeForm[key] !== undefined) { form.value[key] = storeForm[key] }
+        })
       }
-
-      // 确保随行人员数组长度与计数一致
-      if (form.value.accompaningCount > 0 && form.value.accompaningPersons.length === 0) {
-        // 如果有计数但没有数据，创建空对象
-        for (let i = 0; i < form.value.accompaningCount; i++) {
-          form.value.accompaningPersons.push({
-            name: '',
-            idNumber: '',
-            phoneNumber: ''
+      else {
+        // 没有当前提交,从历史提交中抽取最近的
+        store.from.historicalRecords = safetyApi.getHistoricalRecords()
+        if (store.historicalRecords.length()) {
+          const storeForm = store.historicalRecords[-1]
+          Object.keys(form.value).forEach(key => {
+            if (storeForm[key] !== undefined) { form.value[key] = storeForm[key] }
           })
         }
+        else { ElMessage.warning('没有历史数据，无法自动填充') }
       }
-
-      console.log('填充后的表单数据:', form.value)
-      ElMessage.success('已自动填充您的上次申请信息')
     }
-  } catch (error) {
-    console.error('获取上次申请记录失败:', error)
   }
-}
-
-// 从 store 加载数据
-onMounted(() => {
-  const storeForm = store.applicationForm
-  if (storeForm) {
-    Object.keys(form.value).forEach(key => {
-      if (storeForm[key] !== undefined) {
-        form.value[key] = storeForm[key]
-      }
-    })
-  }
-})
-
-onMounted(async () => {
-  if (store.userId === null) {
-    ElMessage.warning('用户未登录，')
-  }
-  try {
-    const userInfo = await getWechatUserInfo()
-    if (!userInfo || !userInfo.wxId) {
-      throw new Error('未获取到用户信息')
-    }
-    store.setUserInfo(userInfo)
-    // 加载历史记录
-    await store.loadHistoricalRecord()
-    // 获取并填充上次申请记录
-    getLastApplication()
-  } 
   catch (error) {
     console.error('初始化失败:', error)
     ElMessage({
-      message: '获取用户信息失败，使用测试模式继续',
+      message: '获取用户信息失败',
       type: 'warning',
       duration: 3000
-    })
-    // 使用测试数据继续
-    store.setUserInfo({
-      wxId: 'test_user',
-      nickname: '测试用户',
-      avatar: ''
     })
   }
 })
