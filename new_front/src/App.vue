@@ -4,10 +4,6 @@ import { RouterView } from 'vue-router'
 import { useAppStore } from '@/stores/counter';
 
 const store = useAppStore()
-const isLogin = ref(false)
-onMounted(async () => {
-  isLogin.value = (store.userId === null)
-})
 </script>
 
 <template>
@@ -17,7 +13,7 @@ onMounted(async () => {
         <el-menu-item index="/">首页</el-menu-item>
         <el-menu-item index="/scan">手机扫码</el-menu-item>
         <el-menu-item index="/apply">新建申请</el-menu-item>
-        <template v-if="isLogin.value">
+        <template v-if="store.userId === null">
           <el-menu-item index="/login">登录</el-menu-item>
         </template>
         <template v-else>

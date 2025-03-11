@@ -1,6 +1,8 @@
 <template>
   <div class="apply-container">
-    <h1>安全作业申请</h1>
+    <div style="display: grid; place-items: center;">
+      <h1>安全作业申请</h1>
+    </div>
     <el-form ref="formRef" :model="form" :rules="rules" @submit.prevent="handleSubmit" class="safety-form">
       <!-- 基本信息部分 -->
       <div class="form-section">
@@ -85,19 +87,19 @@
       <div class="form-section">
         <h2>危险作业信息 <span class="required">*</span></h2>
         <el-checkbox-group v-model="form.dangerTypes" @change="handleDangerTypesChange">
-          <el-checkbox label="动火">动火作业</el-checkbox>
-          <el-checkbox label="登高">登高作业</el-checkbox>
-          <el-checkbox label="临边">临边作业</el-checkbox>
-          <el-checkbox label="起重">起重作业</el-checkbox>
-          <el-checkbox label="有限空间">有限空间作业</el-checkbox>
+          <el-checkbox label="动火" value="动火">动火作业</el-checkbox>
+          <el-checkbox label="登高" value="登高">登高作业</el-checkbox>
+          <el-checkbox label="临边" value="临边">临边作业</el-checkbox>
+          <el-checkbox label="起重" value="起重">起重作业</el-checkbox>
+          <el-checkbox label="有限空间" value="有限空间">有限空间作业</el-checkbox>
         </el-checkbox-group>
 
         <div class="form-item">
           <label class="form-label">是否危险作业：<span class="required">*</span></label>
           <el-radio-group v-model="form.isDangerousWork"
             :disabled="form.workLocation.includes('库外') || form.dangerTypes.length > 0">
-            <el-radio :label="true">是</el-radio>
-            <el-radio :label="false">否</el-radio>
+            <el-radio :label="true" :value="true">是</el-radio>
+            <el-radio :label="false" :value="false">否</el-radio>
           </el-radio-group>
         </div>
       </div>
@@ -135,13 +137,13 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { useAppStore } from '@/stores/counter';
+import { useAppStore } from '@/stores/counter'
+import { safetyApi } from '@/utils/utils' 
 
 const store = useAppStore()
 const router = useRouter()
-const route = useRoute()
 const form = ref({
   // 基本信息
   name: '',
@@ -150,7 +152,7 @@ const form = ref({
   phoneNumber: '',
 
   // 作业信息
-  workingTime: '',
+  workingTime: [],
   startDate: '',
   endDate: '',
   isProductWork: false,
@@ -443,32 +445,24 @@ const handleSubmit = async () => {
     if (!['twoDays', 'threeDays'].includes(form.value.workingTime)) {
       form.value.endDate = ''
     }
-
     // 进行表单验证
     const valid = await formRef.value.validate()
     if (!valid) {
       throw new Error('表单验证失败')
     }
-
     // 进行自定义验证
     validateForm()
-
-    // 准备提交数据
-    const submitData = {
-      ...form.value,
-      userId: store.userInfo?.wxId,
-      // 确保 workLocation 是数组
-      workLocation: Array.isArray(form.value.workLocation) ? form.value.workLocation : []
+    // 更新本地数据
+    if (store.userId === '') {
+      store.userId = form.phoneNumber
     }
-
+    store.from.applicationForm = form
     // 提交申请
-    const result = await store.submitApplication(submitData)
-
+    safetyApi.submitApplication()
+    // 获取历史数据
+    store.from.historicalRecords = safetyApi.getHistoricalRecords()
     // 提交成功后跳转
-    router.push({
-      path: '/success',
-      query: { applicationNumber: result.applicationNumber }
-    })
+    router.push('/success')
   } catch (error) {
     console.error('提交失败:', error)
     ElMessage.error(error.message || '提交失败')
@@ -489,7 +483,7 @@ watch(form, (newValue) => {
     notifierDepartment: newValue.notifierDepartment || '',
     notifierPhone: newValue.notifierPhone || ''
   }
-  store.setApplicationForm(formData)
+  store.from.applicationForm = formData
 }, { deep: true })
 
 // 获取上次申请记录
@@ -569,41 +563,60 @@ const getLastApplication = () => {
   }
 }
 
-
-onMounted(async () => {
-  try {
-    // 获取用户信息
-    const userInfo = store.getUserInfo()
-    if (!userInfo) {
-      ElMessage.error('未获取到用户信息')
-      return
-    }
-
-    console.log('当前用户信息:', userInfo)
-
-    // 加载历史记录
-    await store.loadHistoricalRecord()
-
-    // 获取最后一次申请记录
-    const lastRecord = store.getLastUserApplication(userInfo.wxId)
-    console.log('最后一次申请记录:', lastRecord)
-
-    if (lastRecord) {
-      // 清除时间相关字段
-      const formData = { ...lastRecord }
-      delete formData.submitTime
-      delete formData.applicationNumber
-      delete formData.status
-
-      // 更新表单数据
-      form.value = { ...form.value, ...formData }
-      console.log('设置的表单数据:', form.value)
-    }
-  } catch (error) {
-    console.error('加载历史记录失败:', error)
-    ElMessage.error('加载历史记录失败')
+// 从 store 加载数据
+onMounted(() => {
+  const storeForm = store.applicationForm
+  if (storeForm) {
+    Object.keys(form.value).forEach(key => {
+      if (storeForm[key] !== undefined) {
+        form.value[key] = storeForm[key]
+      }
+    })
   }
 })
+
+onMounted(async () => {
+  if (store.userId === null) {
+    ElMessage.warning('用户未登录，')
+  }
+  try {
+    const userInfo = await getWechatUserInfo()
+    if (!userInfo || !userInfo.wxId) {
+      throw new Error('未获取到用户信息')
+    }
+    store.setUserInfo(userInfo)
+    // 加载历史记录
+    await store.loadHistoricalRecord()
+    // 获取并填充上次申请记录
+    getLastApplication()
+  } 
+  catch (error) {
+    console.error('初始化失败:', error)
+    ElMessage({
+      message: '获取用户信息失败，使用测试模式继续',
+      type: 'warning',
+      duration: 3000
+    })
+    // 使用测试数据继续
+    store.setUserInfo({
+      wxId: 'test_user',
+      nickname: '测试用户',
+      avatar: ''
+    })
+  }
+})
+
+// 添加日期禁用函数
+const disabledDate = (time) => {
+  return time.getTime() < Date.now() - 8.64e7 // 禁用今天之前的日期
+}
+
+// 添加结束日期禁用函数
+const disabledEndDate = (time) => {
+  if (!form.value.startDate) return true
+  const startTime = new Date(form.value.startDate).getTime()
+  return time.getTime() < startTime // 禁用开始日期之前的日期
+}
 </script>
 
 <style scoped>
@@ -695,5 +708,9 @@ onMounted(async () => {
   color: #909399;
   font-size: 16px;
   padding: 0 4px;
+}
+
+h1 {
+  color: #303133;
 }
 </style>

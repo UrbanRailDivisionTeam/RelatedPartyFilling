@@ -62,6 +62,11 @@ router.beforeEach((to, from, next) => {
     return
   }
 
+  // 已经登陆后重新登录
+  if (store.userId !== null && to.path === '/login') {
+    ElMessage.warning('目前已是登陆状态，再次登录会覆盖上次登录')
+  }
+
   next()
 })
 

@@ -9,26 +9,32 @@ export const useAppStore = defineStore('counter', () => {
       idNumber: '',
       companyName: '',
       phoneNumber: '',
+
       workingTime: [],
       startDate: '',
       endDate: '',
       isProductWork: false,
       projectName: '',
       vehicleNumber: '',
-      workLocation: '',
+      workLocation: [],
       trackPosition: '',
       workType: '',
       workContent: '',
       workBasis: '',
       basisNumber: '',
+
       dangerTypes: [],
       isDangerousWork: false,
+
       notifierName: '',
       notifierNumber: '',
+      notifierDepartment: '',
+
       accompaningCount: 0,
       accompaningPersons: []
     },
     historicalRecords: []
   })
+
   return { userId, from }
 })
