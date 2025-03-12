@@ -12,7 +12,7 @@ import { useAppStore } from '@/stores/counter'
 const store = useAppStore()
 // 创建 axios 实例
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:5000/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
@@ -23,11 +23,11 @@ const api = axios.create({
 export const safetyApi = {
   // 提交申请
   submitApplication() {
-    return api.post('/safety/applications', store.from.applicationForm)
+    return api.post('/safety/submit', store.applicationForm)
   },
   // 获取历史记录
   getHistoricalRecords() {
-    return api.get(`/safety/applications/user/${store.userId}`)
+    return api.get(`/safety/applications/${store.userId}`)
   },
   // 用户登录
   UserLogin() {

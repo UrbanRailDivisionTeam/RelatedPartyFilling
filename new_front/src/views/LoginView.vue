@@ -19,6 +19,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/counter';
 import { ElMessage } from 'element-plus'
+import { safetyApi } from '@/utils/utils';
 
 const store = useAppStore()
 const router = useRouter()
@@ -31,14 +32,23 @@ const validatePhoneNumber = async () => {
   const phoneReg = /^1[3-9]\d{9}$/
   isCheck.value = phoneReg.test(userId.value.id)
   if (!isCheck.value) {
-    ElMessage.error('请输入正确的手机号')
+    ElMessage.warning({
+      message: '请输入正确的手机号',
+      duration: 1500,
+      showClose: true
+    })
   }
 }
 
 const handleSubmit = async () => {
-  if (isCheck.value) { 
+  if (isCheck.value) {
     store.userId = userId.value.id
-    ElMessage.success('登陆成功，正在跳转......') 
+    safetyApi.UserLogin()
+    ElMessage.success({
+      message: '登陆成功，正在跳转......',
+      duration: 1000,
+      showClose: true
+    })
     router.push('/')
   }
 }

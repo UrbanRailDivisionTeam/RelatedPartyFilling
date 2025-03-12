@@ -3,38 +3,39 @@ import { defineStore } from 'pinia'
 
 export const useAppStore = defineStore('counter', () => {
   const userId = ref(null)
-  const from = ref({
-    applicationForm: {
-      name: '',
-      idNumber: '',
-      companyName: '',
-      phoneNumber: '',
+  const applicationForm = ref({
+    applicationNumber: '',
+    name: '',
+    idNumber: '',
+    companyName: '',
+    phoneNumber: '',
 
-      workingTime: [],
-      startDate: '',
-      endDate: '',
-      isProductWork: false,
-      projectName: '',
-      vehicleNumber: '',
-      workLocation: [],
-      trackPosition: '',
-      workType: '',
-      workContent: '',
-      workBasis: '',
-      basisNumber: '',
+    submitTime: '',
+    startDate: '',
+    startTime: '',
+    workingHours: '',
+    workLocation: [],
+    workType: '',
 
-      dangerTypes: [],
-      isDangerousWork: false,
+    isProductWork: false,
+    projectName: '',
+    vehicleNumber: '',
+    trackPosition: '',
 
-      notifierName: '',
-      notifierNumber: '',
-      notifierDepartment: '',
+    workContent: '',
+    workBasis: '',
+    basisNumber: '',
 
-      accompaningCount: 0,
-      accompaningPersons: []
-    },
-    historicalRecords: []
+    isDangerousWork: false,
+    dangerTypes: [],
+
+    notifierName: '',
+    notifierNumber: '',
+    notifierDepartment: '',
+
+    accompaningCount: 0,
+    accompaningPersons: []
   })
-
-  return { userId, from }
+  const historicalRecords = ref([])
+  return { userId, applicationForm, historicalRecords }
 })

@@ -1,2 +1,3 @@
 fastapi
+peewee
 psycopg2-binary

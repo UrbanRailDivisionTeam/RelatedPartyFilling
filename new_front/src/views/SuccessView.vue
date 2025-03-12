@@ -5,7 +5,7 @@
       <el-icon class="success-icon">
         <CircleCheckFilled />
       </el-icon>
-      <p>您的安全作业申请已成功提交</p>
+      <p class="title-style">您的安全作业申请已成功提交</p>
       <p class="reference-number">申请编号：{{ applicationNumber }}</p>
     </div>
     <div class="action-buttons">
@@ -53,5 +53,9 @@ const applicationNumber = ref(route.query.applicationNumber || '')
 
 .action-buttons .el-button {
   margin: 0 10px;
+}
+
+.title-style{
+  color: #303133;
 }
 </style>

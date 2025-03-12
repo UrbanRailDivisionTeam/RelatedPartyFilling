@@ -1,13 +1,8 @@
 <script setup>
-import { onMounted, ref } from 'vue'
 import { Plus, Document, User} from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores/counter';
 
 const store = useAppStore()
-const isLogin = ref(true)
-onMounted(async () => {
-  isLogin.value = (store.userId === null)
-})
 </script>
 
 <template>
@@ -21,8 +16,8 @@ onMounted(async () => {
         <h2>新建申请</h2>
         <p>创建新的安全作业申请</p>
       </el-card>
-      <template v-if="isLogin">
-        <el-card class="action-card" @click="$router.push('/records')">
+      <template v-if="store.userId === null">
+        <el-card class="action-card" @click="$router.push('/login')">
           <el-icon size="40">
             <User />
           </el-icon>
@@ -31,7 +26,7 @@ onMounted(async () => {
         </el-card>
       </template>
       <template v-else>
-        <el-card class="action-card" @click="$router.push('/login')">
+        <el-card class="action-card" @click="$router.push('/records')">
           <el-icon size="40">
             <Document />
           </el-icon>

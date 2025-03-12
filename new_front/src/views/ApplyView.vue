@@ -3,42 +3,43 @@
     <div style="display: grid; place-items: center;">
       <h1>安全作业申请</h1>
     </div>
-    <el-form ref="formRef" :model="form" :rules="rules" @submit.prevent="handleSubmit" class="safety-form">
+    <el-form ref="formRef" :model="store.applicationForm" :rules="rules" @submit.prevent="handleSubmit"
+      class="safety-form">
       <!-- 基本信息部分 -->
       <div class="form-section">
         <h2>基本信息 <span class="required">*</span></h2>
-        <el-input v-model="form.name" placeholder="姓名" required />
-        <el-input v-model="form.idNumber" placeholder="身份证号" required :maxlength="18" @blur="validateIdNumber" />
-        <el-input v-model="form.companyName" placeholder="公司名称" required />
-        <el-input v-model="form.phoneNumber" placeholder="联系电话" required :maxlength="11" @blur="validatePhoneNumber" />
+        <el-input v-model="store.applicationForm.name" placeholder="姓名" required />
+        <el-input v-model="store.applicationForm.idNumber" placeholder="身份证号" required :maxlength="18"
+          @blur="validateIdNumber" />
+        <el-input v-model="store.applicationForm.companyName" placeholder="公司名称" required />
+        <el-input v-model="store.applicationForm.phoneNumber" placeholder="联系电话" required :maxlength="11"
+          @blur="validatePhoneNumber" />
       </div>
 
       <!-- 作业信息部分 -->
       <div class="form-section">
         <h2>作业信息 <span class="required">*</span></h2>
-
-        <!-- 作业时间和日期选择 -->
-        <el-select v-model="form.workingTime" placeholder="申请作业时间" required class="form-item"
-          @change="handleWorkingTimeChange">
-          <el-option label="上午" value="morning" />
-          <el-option label="下午" value="afternoon" />
-          <el-option label="全天" value="fullDay" />
-          <el-option label="两天" value="twoDays" />
-          <el-option label="三天" value="threeDays" />
+        <div class="date-range form-item">
+          <el-date-picker v-model="store.applicationForm.startDate" type="date" placeholder="计划开工日期" required
+            value-format="YYYY-MM-DD" format="YYYY/M/D" :disabled-date="disabledDate" :style="{ width: '100%' }" />
+        </div>
+        <el-select v-model="store.applicationForm.startTime" placeholder="开工开始时间" required clearable>
+          <el-option label="上午" value="上午" />
+          <el-option label="下午" value="下午" />
         </el-select>
 
-        <!-- 日期选择器 -->
-        <div class="date-range form-item">
-          <el-date-picker v-model="form.startDate" type="date" placeholder="计划开工日期" required value-format="YYYY-MM-DD"
-            format="YYYY/M/D" :disabled-date="disabledDate" class="date-picker" @change="validateDateRange" />
-          <span class="date-separator" v-if="needsEndDate">~</span>
-          <el-date-picker v-if="needsEndDate" v-model="form.endDate" type="date" placeholder="计划完工日期"
-            value-format="YYYY-MM-DD" format="YYYY/M/D" :disabled-date="disabledEndDate" class="date-picker"
-            @change="validateDateRange" />
-        </div>
+        <el-select v-model="store.applicationForm.workingHours" placeholder="工作时长" required clearable>
+          <el-option label="半天" value="半天" />
+          <el-option label="一天" value="一天" />
+          <el-option label="一天半" value="一天半" />
+          <el-option label="两天" value="两天" />
+          <el-option label="两天半" value="两天半" />
+          <el-option label="三天" value="三天" />
+        </el-select>
+
 
         <!-- 作业地点 -->
-        <el-select v-model="form.workLocation" placeholder="作业地点" required multiple clearable
+        <el-select v-model="store.applicationForm.workLocation" placeholder="作业地点" required multiple clearable
           @change="handleWorkLocationChange">
           <el-option label="总成车间" value="总成车间" />
           <el-option label="老调试" value="老调试" />
@@ -49,7 +50,7 @@
         </el-select>
 
         <!-- 作业类型 -->
-        <el-select v-model="form.workType" placeholder="作业类型" required @change="handleWorkTypeChange">
+        <el-select v-model="store.applicationForm.workType" placeholder="作业类型" required @change="handleWorkTypeChange">
           <el-option label="质量返工" value="质量返工" />
           <el-option label="家具维修及活动策划" value="家具维修及活动策划" />
           <el-option label="工装工具相关作业" value="工装工具相关作业" />
@@ -60,33 +61,36 @@
         </el-select>
 
         <!-- 产品类作业相关字段 -->
-        <template v-if="isProductWork">
-          <el-input v-model="form.projectName" placeholder="项目名称" required />
-          <el-input v-model="form.vehicleNumber" placeholder="车号" required />
-          <el-input v-model="form.trackPosition" placeholder="车道/台位" required />
+        <template v-if="store.applicationForm.workType === '质量返工'">
+          <el-input v-model="store.applicationForm.projectName" placeholder="项目名称" required />
+          <el-input v-model="store.applicationForm.vehicleNumber" placeholder="车号" required />
+          <el-input v-model="store.applicationForm.trackPosition" placeholder="车道/台位" required />
         </template>
 
         <!-- 作业内容 -->
-        <el-select v-model="form.workContent" placeholder="具体作业内容" required :disabled="!form.workType">
-          <el-option v-for="option in workContentOptions" :key="option" :label="option" :value="option" />
+        <el-select v-model="store.applicationForm.workContent" placeholder="具体作业内容" required
+          :disabled="!store.applicationForm.workType">
+          <el-option
+            v-for="option in store.applicationForm.workType ? workContentMap[store.applicationForm.workType] : []"
+            :key="option" :label="option" :value="option" />
         </el-select>
 
         <!-- 质量返工相关字段 -->
-        <template v-if="form.workType === '质量返工'">
-          <el-select v-model="form.workBasis" placeholder="作业依据" required>
+        <template v-if="store.applicationForm.workType === '质量返工'">
+          <el-select v-model="store.applicationForm.workBasis" placeholder="作业依据" required>
             <el-option label="NCR" value="NCR" />
             <el-option label="开口项" value="开口项" />
             <el-option label="设计变更" value="设计变更" />
           </el-select>
 
-          <el-input v-model="form.basisNumber" placeholder="NCR/开口项/设计变更编号" required />
+          <el-input v-model="store.applicationForm.basisNumber" placeholder="NCR/开口项/设计变更编号" required />
         </template>
       </div>
 
       <!-- 危险作业信息 -->
       <div class="form-section">
         <h2>危险作业信息 <span class="required">*</span></h2>
-        <el-checkbox-group v-model="form.dangerTypes" @change="handleDangerTypesChange">
+        <el-checkbox-group v-model="store.applicationForm.dangerTypes" @change="handleDangerTypesChange">
           <el-checkbox label="动火" value="动火">动火作业</el-checkbox>
           <el-checkbox label="登高" value="登高">登高作业</el-checkbox>
           <el-checkbox label="临边" value="临边">临边作业</el-checkbox>
@@ -96,8 +100,8 @@
 
         <div class="form-item">
           <label class="form-label">是否危险作业：<span class="required">*</span></label>
-          <el-radio-group v-model="form.isDangerousWork"
-            :disabled="form.workLocation.includes('库外') || form.dangerTypes.length > 0">
+          <el-radio-group v-model="store.applicationForm.isDangerousWork"
+            :disabled="store.applicationForm.workLocation.includes('库外') || store.applicationForm.dangerTypes.length > 0">
             <el-radio :label="true" :value="true">是</el-radio>
             <el-radio :label="false" :value="false">否</el-radio>
           </el-radio-group>
@@ -107,18 +111,19 @@
       <!-- 事业部对接人信息 -->
       <div class="form-section">
         <h2>事业部对接人信息 <span class="required">*</span></h2>
-        <el-input v-model="form.notifierName" placeholder="对接人姓名" required />
-        <el-input v-model="form.notifierNumber" placeholder="对接人工号（选填，12位工号）" :maxlength="12"
+        <el-input v-model="store.applicationForm.notifierName" placeholder="对接人姓名" required />
+        <el-input v-model="store.applicationForm.notifierNumber" placeholder="对接人工号（选填，12位工号）" :maxlength="12"
           @blur="validateNotifierNumber" />
-        <el-input v-model="form.notifierDepartment" placeholder="所属部门" required />
+        <el-input v-model="store.applicationForm.notifierDepartment" placeholder="所属部门" required />
       </div>
 
       <!-- 随行人员信息 -->
       <div class="form-section">
         <h2>随行人员信息</h2>
-        <el-input-number v-model="form.accompaningCount" :min="0" placeholder="随行人数"
+        <el-input-number v-model="store.applicationForm.accompaningCount" :min="0" placeholder="随行人数"
           @change="handleAccompaningCountChange" />
-        <div v-for="(person, index) in form.accompaningPersons" :key="index" class="accompanying-person">
+        <div v-for="(person, index) in store.applicationForm.accompaningPersons" :key="index"
+          class="accompanying-person">
           <h3>随行人员 {{ index + 1 }} <span class="required">*</span></h3>
           <el-input v-model="person.name" placeholder="姓名" required />
           <el-input v-model="person.idNumber" placeholder="身份证号" required :maxlength="18"
@@ -136,7 +141,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAppStore } from '@/stores/counter'
@@ -144,40 +149,6 @@ import { safetyApi } from '@/utils/utils'
 
 const store = useAppStore()
 const router = useRouter()
-const form = ref({
-  // 基本信息
-  name: '',
-  idNumber: '',
-  companyName: '',
-  phoneNumber: '',
-
-  // 作业信息
-  workingTime: [],
-  startDate: '',
-  endDate: '',
-  isProductWork: false,
-  projectName: '',
-  vehicleNumber: '',
-  workLocation: [],
-  trackPosition: '',
-  workType: '',
-  workContent: '',
-  workBasis: '',
-  basisNumber: '',
-
-  // 危险作业信息
-  dangerTypes: [],
-  isDangerousWork: false,
-
-  // 通知人信息
-  notifierName: '',
-  notifierNumber: '',
-  notifierDepartment: '',
-
-  // 随行人员信息
-  accompaningCount: 0,
-  accompaningPersons: []
-})
 
 // 作业内容选项映射
 const workContentMap = {
@@ -210,91 +181,91 @@ const workContentMap = {
   '生产设备维修': ['设备常规维护保养及故障维修'],
   '办公设备设施维修': ['电脑', '打印机', '音响']
 }
-
-// 根据作业类型计算作业内容选项
-const workContentOptions = computed(() => {
-  return form.value.workType ? workContentMap[form.value.workType] : []
-})
-
-// 添加计算属性判断是否为产品类作业
-const isProductWork = computed(() => {
-  return form.value.workType === '质量返工'
-})
+// 用于验证的正则
+const idNumberReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
+const phoneReg = /^1[3-9]\d{9}$/
+const notifierNumberReg = /^\d{12}$/
 
 // 修改作业类型变更处理函数
-const handleWorkTypeChange = () => {
+const handleWorkTypeChange = (values) => {
   // 清空作业内容
-  form.value.workContent = ''
-
+  store.applicationForm.workContent = ''
   // 根据作业类型自动设置是否为产品类作业（后台仍保存该字段）
-  form.value.isProductWork = form.value.workType === '质量返工'
-
+  store.applicationForm.isProductWork = store.applicationForm.workType === '质量返工'
   // 如果不是产品类作业，清空产品相关字段
-  if (!form.value.isProductWork) {
-    form.value.projectName = ''
-    form.value.vehicleNumber = ''
-    form.value.trackPosition = ''
+  if (!store.applicationForm.isProductWork) {
+    store.applicationForm.projectName = ''
+    store.applicationForm.vehicleNumber = ''
+    store.applicationForm.trackPosition = ''
   }
 }
 
 // 修改作业地点变更处理函数
 const handleWorkLocationChange = (values) => {
-  console.log('作业地点变更:', values)
-  form.value.workLocation = values || []
-
+  store.applicationForm.workLocation = values || []
   // 如果选择包含库外作业，自动设置为危险作业并锁定
   if (values.includes('库外')) {
-    form.value.isDangerousWork = true
-  } else if (form.value.dangerTypes.length === 0) {
+    store.applicationForm.isDangerousWork = true
+  }
+  else if (store.applicationForm.dangerTypes.length === 0) {
     // 如果不包含库外且没有选择危险作业类型，则允许修改危险作业状态
-    form.value.isDangerousWork = false
+    store.applicationForm.isDangerousWork = false
   }
 }
 
 // 修改危险作业类型变更处理函数
 const handleDangerTypesChange = (values) => {
   if (values.length > 0) {
-    form.value.isDangerousWork = true
-  } else if (!form.value.workLocation.includes('库外')) {
+    store.applicationForm.isDangerousWork = true
+  } else if (!store.applicationForm.workLocation.includes('库外')) {
     // 只有当没有选择库外作业时，才允许修改为非危险作业
-    form.value.isDangerousWork = false
+    store.applicationForm.isDangerousWork = false
   }
 }
 
 // 验证身份证号
 const validateIdNumber = () => {
-  const idNumberReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
-  if (!idNumberReg.test(form.value.idNumber)) {
-    ElMessage.error('请输入正确的身份证号')
-    form.value.idNumber = ''
+  if (!idNumberReg.test(store.applicationForm.idNumber)) {
+    ElMessage.warning({
+      message: '请输入正确的身份证号',
+      duration: 1500,
+      showClose: true
+    })
+    store.applicationForm.idNumber = ''
   }
 }
 
 // 验证手机号
 const validatePhoneNumber = () => {
-  const phoneReg = /^1[3-9]\d{9}$/
-  if (!phoneReg.test(form.value.phoneNumber)) {
-    ElMessage.error('请输入正确的手机号')
-    form.value.phoneNumber = ''
+  if (!phoneReg.test(store.applicationForm.phoneNumber)) {
+    ElMessage.warning({
+      message: '请输入正确的手机号',
+      duration: 1500,
+      showClose: true
+    })
+    store.applicationForm.phoneNumber = ''
   }
 }
 
 // 验证工号
 const validateNotifierNumber = () => {
-  const notifierNumberReg = /^\d{12}$/
-  if (!notifierNumberReg.test(form.value.notifierNumber)) {
-    ElMessage.error('请输入12位数字工号')
-    form.value.notifierNumber = ''
+  if (store.applicationForm.notifierNumber !== '' && !notifierNumberReg.test(store.applicationForm.notifierNumber)) {
+    ElMessage.warning({
+      message: '请输入12位数字工号',
+      duration: 1500,
+      showClose: true
+    })
+    store.applicationForm.notifierNumber = ''
   }
 }
 
 // 处理随行人数变更
 const handleAccompaningCountChange = (value) => {
-  const currentLength = form.value.accompaningPersons.length
+  const currentLength = store.applicationForm.accompaningPersons.length
   if (value > currentLength) {
     // 添加新的随行人员
     for (let i = currentLength; i < value; i++) {
-      form.value.accompaningPersons.push({
+      store.applicationForm.accompaningPersons.push({
         name: '',
         idNumber: '',
         phoneNumber: ''
@@ -302,66 +273,31 @@ const handleAccompaningCountChange = (value) => {
     }
   } else if (value < currentLength) {
     // 移除多余的随行人员
-    form.value.accompaningPersons.splice(value)
+    store.applicationForm.accompaningPersons.splice(value)
   }
-  console.log('随行人员数组:', form.value.accompaningPersons)
 }
 
 // 验证随行人员身份证号
 const validateAccompaningIdNumber = (e, index) => {
-  const idNumberReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
-  if (!idNumberReg.test(form.value.accompaningPersons[index].idNumber)) {
-    ElMessage.error(`随行人员 ${index + 1} 的身份证号格式不正确`)
-    form.value.accompaningPersons[index].idNumber = ''
+  if (!idNumberReg.test(store.applicationForm.accompaningPersons[index].idNumber)) {
+    ElMessage.warning({
+      message: `随行人员 ${index + 1} 的身份证号格式不正确`,
+      duration: 1500,
+      showClose: true
+    })
+    store.applicationForm.accompaningPersons[index].idNumber = ''
   }
 }
 
 // 验证随行人员手机号
 const validateAccompaningPhoneNumber = (e, index) => {
-  const phoneReg = /^1[3-9]\d{9}$/
-  if (!phoneReg.test(form.value.accompaningPersons[index].phoneNumber)) {
-    ElMessage.error(`随行人员 ${index + 1} 的手机号格式不正确`)
-    form.value.accompaningPersons[index].phoneNumber = ''
-  }
-}
-
-// 计算是否需要结束日期
-const needsEndDate = computed(() => {
-  return ['twoDays', 'threeDays'].includes(form.value.workingTime)
-})
-
-// 处理作业时间变更
-const handleWorkingTimeChange = () => {
-  // 如果不需要结束日期，清空结束日期并触发验证
-  if (!needsEndDate.value) {
-    form.value.endDate = ''
-    formRef.value?.clearValidate(['endDate'])
-  }
-}
-
-// 验证日期范围
-const validateDateRange = () => {
-  // 如果不需要结束日期，直接返回
-  if (!needsEndDate.value) {
-    return
-  }
-
-  if (!form.value.startDate || !form.value.endDate) return
-
-  const start = new Date(form.value.startDate)
-  const end = new Date(form.value.endDate)
-  const daysDiff = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1
-
-  if (form.value.workingTime === 'twoDays' && daysDiff !== 2) {
-    ElMessage.error('两天作业必须选择相邻的两天')
-    form.value.endDate = ''
-    return
-  }
-
-  if (form.value.workingTime === 'threeDays' && daysDiff !== 3) {
-    ElMessage.error('三天作业必须选择连续的三天')
-    form.value.endDate = ''
-    return
+  if (!phoneReg.test(store.applicationForm.accompaningPersons[index].phoneNumber)) {
+    ElMessage.warning({
+      message: `随行人员 ${index + 1} 的手机号格式不正确`,
+      duration: 1500,
+      showClose: true
+    })
+    store.applicationForm.accompaningPersons[index].phoneNumber = ''
   }
 }
 
@@ -374,8 +310,10 @@ const rules = {
   phoneNumber: [{ required: true, message: '请输入联系电话', trigger: 'blur' }],
 
   // 作业信息
-  workingTime: [{ required: true, message: '请选择作业时间', trigger: 'change' }],
   startDate: [{ required: true, message: '请选择开工日期', trigger: 'change' }],
+  startTime: [{ required: true, message: '请选择开工时间', trigger: 'change' }],
+  workingHours: [{ required: true, message: '请选择作业时长', trigger: 'change' }],
+
   workLocation: [{ required: true, message: '请选择作业地点', trigger: 'change' }],
   workType: [{ required: true, message: '请选择作业类型', trigger: 'change' }],
   workContent: [{ required: true, message: '请选择作业内容', trigger: 'change' }],
@@ -385,52 +323,53 @@ const rules = {
   notifierDepartment: [{ required: true, message: '请输入所属部门', trigger: 'blur' }]
 }
 
+// 添加日期禁用函数
+const disabledDate = (time) => {
+  return time.getTime() < Date.now() - 8.64e7 // 禁用今天之前的日期
+}
+
 const formRef = ref(null)
 
 // 修改表单验证函数
 const validateForm = () => {
   // 基本信息验证
-  if (!form.value.name?.trim()) throw new Error('请填写姓名')
-  if (!form.value.idNumber?.trim()) throw new Error('请填写身份证号')
-  if (!form.value.companyName?.trim()) throw new Error('请填写公司名称')
-  if (!form.value.phoneNumber?.trim()) throw new Error('请填写联系电话')
+  if (!store.applicationForm.name?.trim()) throw new Error('请填写姓名')
+  if (!store.applicationForm.idNumber?.trim()) throw new Error('请填写身份证号')
+  if (!store.applicationForm.companyName?.trim()) throw new Error('请填写公司名称')
+  if (!store.applicationForm.phoneNumber?.trim()) throw new Error('请填写联系电话')
 
   // 作业信息验证
-  if (!form.value.workingTime) throw new Error('请选择作业时间')
-  if (!form.value.startDate) throw new Error('请选择开工日期')
+  if (!store.applicationForm.startDate) throw new Error('请选择开工日期')
+  if (!store.applicationForm.startTime) throw new Error('请选择开工时间时是上午还是下午')
+  if (!store.applicationForm.workingHours) throw new Error('请选择工作时长')
 
-  // 只在选择两天或三天作业时验证完工日期
-  if (['twoDays', 'threeDays'].includes(form.value.workingTime)) {
-    if (!form.value.endDate) throw new Error('请选择完工日期')
-  }
-
-  if (!form.value.workLocation?.length) throw new Error('请选择作业地点')
-  if (!form.value.workType?.trim()) throw new Error('请选择作业类型')
-  if (!form.value.workContent?.trim()) throw new Error('请选择作业内容')
+  if (!store.applicationForm.workLocation?.length) throw new Error('请选择作业地点')
+  if (!store.applicationForm.workType?.trim()) throw new Error('请选择作业类型')
+  if (!store.applicationForm.workContent?.trim()) throw new Error('请选择作业内容')
 
   // 产品类作业验证
-  if (form.value.isProductWork) {
-    if (!form.value.projectName?.trim()) throw new Error('请填写项目名称')
-    if (!form.value.vehicleNumber?.trim()) throw new Error('请填写车号')
-    if (!form.value.trackPosition?.trim()) throw new Error('请填写车道/台位')
+  if (store.applicationForm.isProductWork) {
+    if (!store.applicationForm.projectName?.trim()) throw new Error('请填写项目名称')
+    if (!store.applicationForm.vehicleNumber?.trim()) throw new Error('请填写车号')
+    if (!store.applicationForm.trackPosition?.trim()) throw new Error('请填写车道/台位')
   }
 
   // 质量返工验证
-  if (form.value.workType === '质量返工') {
-    if (!form.value.workBasis?.trim()) throw new Error('请选择作业依据')
-    if (!form.value.basisNumber?.trim()) throw new Error('请填写编号')
+  if (store.applicationForm.workType === '质量返工') {
+    if (!store.applicationForm.workBasis?.trim()) throw new Error('请选择作业依据')
+    if (!store.applicationForm.basisNumber?.trim()) throw new Error('请填写编号')
   }
 
   // 通知人信息验证
-  if (!form.value.notifierName?.trim()) throw new Error('请填写对接人姓名')
-  if (!form.value.notifierDepartment?.trim()) throw new Error('请填写所属部门')
+  if (!store.applicationForm.notifierName?.trim()) throw new Error('请填写对接人姓名')
+  if (!store.applicationForm.notifierDepartment?.trim()) throw new Error('请填写所属部门')
 
   // 随行人员验证
-  if (form.value.accompaningCount > 0) {
-    if (!form.value.accompaningPersons?.length) {
+  if (store.applicationForm.accompaningCount > 0) {
+    if (!store.applicationForm.accompaningPersons?.length) {
       throw new Error('请添加随行人员信息')
     }
-    form.value.accompaningPersons.forEach((person, index) => {
+    store.applicationForm.accompaningPersons.forEach((person, index) => {
       if (!person.name?.trim()) throw new Error(`请填写随行人员${index + 1}的姓名`)
       if (!person.idNumber?.trim()) throw new Error(`请填写随行人员${index + 1}的身份证号`)
       if (!person.phoneNumber?.trim()) throw new Error(`请填写随行人员${index + 1}的联系电话`)
@@ -441,10 +380,6 @@ const validateForm = () => {
 // 修改提交处理函数
 const handleSubmit = async () => {
   try {
-    // 如果不是两天或三天作业，清空完工日期
-    if (!['twoDays', 'threeDays'].includes(form.value.workingTime)) {
-      form.value.endDate = ''
-    }
     // 进行表单验证
     const valid = await formRef.value.validate()
     if (!valid) {
@@ -452,30 +387,35 @@ const handleSubmit = async () => {
     }
     // 进行自定义验证
     validateForm()
-    // 更新本地数据
+    // 如果没有登陆，自动根据电话号登录
     if (store.userId === '') {
-      store.userId = form.phoneNumber
+      store.userId = store.applicationForm.phoneNumber
     }
-    store.from.applicationForm = form
+    // 添加提交相关的信息
+    store.applicationForm.submitTime = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+    store.applicationForm.applicationNumber = store.applicationForm.name + store.applicationForm.idNumber + store.applicationForm.phoneNumber
     // 提交申请
-    safetyApi.submitApplication()
+    await safetyApi.submitApplication()
     // 获取历史数据
-    store.from.historicalRecords = safetyApi.getHistoricalRecords()
+    store.historicalRecords = (await safetyApi.getHistoricalRecords()).data
     // 提交成功后跳转
     router.push('/success')
   } catch (error) {
     console.error('提交失败:', error)
-    ElMessage.error(error.message || '提交失败')
+    ElMessage.error({
+      message: error.message || '提交失败',
+      duration: 0,
+      showClose: true
+    })
   }
 }
 
 // 监听表单数据变化
-watch(form, (newValue) => {
-  console.log('表单数据变化:', newValue)
+watch(store.applicationForm, (newValue) => {
   // 如果填写了电话号自动更新
   if (store.userId === null && newValue.phoneNumber !== null) {
     store.userId = newValue.phoneNumber
-    store.from.historicalRecords = safetyApi.getHistoricalRecords()
+    store.historicalRecords = safetyApi.getHistoricalRecords().data
   }
   // 确保必填字段有值
   const formData = {
@@ -488,53 +428,44 @@ watch(form, (newValue) => {
     notifierDepartment: newValue.notifierDepartment || '',
     notifierPhone: newValue.notifierPhone || ''
   }
-  store.from.applicationForm = formData
+  store.applicationForm = formData
 }, { deep: true })
 
 onMounted(async () => {
   try {
-    if (store.userId === null) { ElMessage.warning('用户未登录，无法获取历史提交') }
-    else {
-      const storeForm = store.applicationForm
-      if (storeForm) {
-        Object.keys(form.value).forEach(key => {
-          if (storeForm[key] !== undefined) { form.value[key] = storeForm[key] }
-        })
+    if (store.userId === null) {
+      ElMessage.warning({
+        message: '用户未登录，无法获取历史提交',
+        duration: 1500,
+        showClose: true
+      })
+    }
+    else if (!store.applicationForm) {
+      // 没有当前提交，就更新历史提交，并从历史提交中抽取最近的
+      store.historicalRecords = (await safetyApi.getHistoricalRecords()).data
+      if (store.historicalRecords.length) {
+        store.applicationForm = store.historicalRecords[0]
       }
       else {
-        // 没有当前提交,从历史提交中抽取最近的
-        store.from.historicalRecords = safetyApi.getHistoricalRecords()
-        if (store.historicalRecords.length()) {
-          const storeForm = store.historicalRecords[-1]
-          Object.keys(form.value).forEach(key => {
-            if (storeForm[key] !== undefined) { form.value[key] = storeForm[key] }
-          })
-        }
-        else { ElMessage.warning('没有历史数据，无法自动填充') }
+        ElMessage.warning({
+          message: '没有历史数据，无法自动填充',
+          duration: 1500,
+          showClose: true
+        })
       }
     }
   }
   catch (error) {
     console.error('初始化失败:', error)
-    ElMessage({
+    ElMessage.error({
       message: '获取用户信息失败',
-      type: 'warning',
-      duration: 3000
+      duration: 0,
+      showClose: true
     })
   }
 })
 
-// 添加日期禁用函数
-const disabledDate = (time) => {
-  return time.getTime() < Date.now() - 8.64e7 // 禁用今天之前的日期
-}
 
-// 添加结束日期禁用函数
-const disabledEndDate = (time) => {
-  if (!form.value.startDate) return true
-  const startTime = new Date(form.value.startDate).getTime()
-  return time.getTime() < startTime // 禁用开始日期之前的日期
-}
 </script>
 
 <style scoped>
@@ -603,23 +534,10 @@ const disabledEndDate = (time) => {
   margin-top: 20px;
 }
 
-/* 确保日期选择器和其他输入框宽度一致 */
-:deep(.el-date-picker) {
-  width: 100%;
-}
-
-:deep(.el-input__wrapper) {
-  width: 100%;
-}
-
 .date-range {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.date-picker {
-  flex: 1;
 }
 
 .date-separator {

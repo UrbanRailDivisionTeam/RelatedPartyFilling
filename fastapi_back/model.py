@@ -1,39 +1,53 @@
 from pydantic import BaseModel
-from peewee import PostgresqlDatabase
+from peewee import PostgresqlDatabase, Model, TextField, IntegerField, SQL
 
+# ------------前后端请求的模型------------
 class SafeFrom(BaseModel):
+    applicationNumber: str
     name: str
     idNumber: str
     companyName: str
     phoneNumber: str
 
-    workingTime: list
+    submitTime: str
     startDate: str
-    endDate: str | None = None
-    isProductWork: bool | None = None
-    projectName: str | None = None
-    vehicleNumber: str | None = None
+    startTime: str
+    workingHours: str
     workLocation: list
-    trackPosition: str | None = None
     workType: str
-    workContent: str
-    workBasis: str | None = None
-    basisNumber: str | None = None
 
-    dangerTypes: list | None = None
-    isDangerousWork: bool | None = None
+    isProductWork: bool
+    projectName: str
+    vehicleNumber: str
+    trackPosition: str
+    
+    workContent: str
+    workBasis: str
+    basisNumber: str
+
+    isDangerousWork: bool
+    dangerTypes: list
 
     notifierName: str
-    notifierNumber: str | None = None
+    notifierNumber: str
     notifierDepartment: str
 
-    accompaningCount: int | None = None
-    accompaningPersons: list | None = None
-    
-    
+    accompaningCount:int
+    accompaningPersons: list
+
+
 database = PostgresqlDatabase(
     'public',
     host='172.29.22.83',
-    port=5432, 
-    user='postgres', 
+    port=5432,
+    user='postgres',
     password='Swq8855830.')
+
+# ------------数据库表的模型------------
+class MyUser (Model):
+    name = TextField()
+    city = TextField(constraints=[SQL("DEFAULT 'Mumbai'")])
+    age = IntegerField()
+    class Meta:
+        database = database
+        db_table = 'mysql'
