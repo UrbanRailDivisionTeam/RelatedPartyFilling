@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { isWechatBrowser } from '@/utils/wechat'
+import { useAppStore } from '@/stores/counter';
 import { ElMessage } from 'element-plus'
-import { useSafetyApplicationStore } from '@/stores/safetyApplication'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,13 +9,19 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: () => import('../views/HomeView.vue'),
-      meta: { title: '首页' }
+      meta: { title: '主页' }
     },
     {
-      path: '/auth',
-      name: 'auth',
-      component: () => import('../views/WechatAuth.vue'),
-      meta: { title: '微信授权' }
+      path: '/scan',
+      name: 'scan',
+      component: () => import('../views/ScanCodeView.vue'),
+      meta: { title: '扫码页面' }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/LoginView.vue'),
+      meta: { title: '登陆页面' }
     },
     {
       path: '/apply',
@@ -36,34 +41,33 @@ const router = createRouter({
       component: () => import('../views/RecordsView.vue'),
       meta: { title: '申请记录' }
     }
-  ]
+  ],
 })
 
 router.beforeEach((to, from, next) => {
   document.title = to.meta.title ? `${to.meta.title} - 安全作业申请系统` : '安全作业申请系统'
 
-  // 首页不需要检查微信环境
-  if (to.path === '/') {
-    next()
+  const store = useAppStore()
+  // 检查是否在微信环境中
+  if (store.userId === null && to.path === '/records') {
+    ElMessage.error('需要登录后才能查询历史提交')
+    next('/login')
     return
   }
 
-  // 检查是否在微信环境中
-  if (!isWechatBrowser()) {
-    ElMessage.error('请在微信客户端打开链接')
+  // 其他的跳转路径检查
+  if (from.path !== '/apply' && to.path === '/success') {
+    ElMessage.error('非法访问')
     next('/')
     return
   }
 
-  // 检查是否需要微信授权
-  const store = useSafetyApplicationStore()
-  const userInfo = store.getUserInfo()
-
-  if (!userInfo && to.path !== '/auth') {
-    next('/auth')
-  } else {
-    next()
+  // 已经登陆后重新登录
+  if (store.userId !== null && to.path === '/login') {
+    ElMessage.warning('目前已是登陆状态，再次登录会覆盖上次登录')
   }
+
+  next()
 })
 
 export default router

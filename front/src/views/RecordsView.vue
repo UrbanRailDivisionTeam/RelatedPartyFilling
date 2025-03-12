@@ -1,10 +1,10 @@
 <template>
   <div class="records-container">
     <h1>申请记录</h1>
-    
+
     <!-- 移动端记录列表 -->
     <div class="mobile-records">
-      <el-card v-for="record in records" :key="record.applicationNumber" class="record-card">
+      <el-card v-for="record in store.historicalRecords" :key="record.applicationNumber" class="record-card">
         <div class="record-header">
           <span class="application-number">{{ record.applicationNumber }}</span>
           <span class="submit-time">{{ formatDate(record.submitTime) }}</span>
@@ -20,13 +20,7 @@
     </div>
 
     <!-- 详情对话框 -->
-    <el-dialog
-      v-model="detailDialogVisible"
-      title="申请详情"
-      width="95%"
-      :fullscreen="true"
-      custom-class="mobile-dialog"
-    >
+    <el-dialog v-model="detailDialogVisible" title="申请详情" width="95%" :fullscreen="true" custom-class="mobile-dialog">
       <div v-if="currentRecord" class="detail-content">
         <div class="detail-section">
           <h3>基本信息</h3>
@@ -51,12 +45,12 @@
         <div class="detail-section">
           <h3>作业信息</h3>
           <div class="info-item">
-            <label>作业时间：</label>
-            <span>{{ formatWorkingTime(currentRecord.workingTime) }}</span>
+            <label>开工日期</label>
+            <span>{{ formatDate(currentRecord.startDate) }} 的 {{ currentRecord.startTime }}</span>
           </div>
           <div class="info-item">
-            <label>计划时间：</label>
-            <span>{{ formatDate(currentRecord.startDate) }} 至 {{ formatDate(currentRecord.endDate) }}</span>
+            <label>开工时长</label>
+            <span>{{ currentRecord.workingHours}}</span>
           </div>
           <div class="info-item">
             <label>作业地点：</label>
@@ -74,7 +68,7 @@
             <label>是否产品类作业：</label>
             <span>{{ currentRecord.isProductWork ? '是' : '否' }}</span>
           </div>
-          
+
           <!-- 产品类作业相关信息 -->
           <template v-if="currentRecord.isProductWork">
             <div class="info-item">
@@ -90,7 +84,7 @@
               <span>{{ currentRecord.trackPosition }}</span>
             </div>
           </template>
-          
+
           <!-- 质量返工相关信息 -->
           <template v-if="currentRecord.workType === '质量返工'">
             <div class="info-item">
@@ -149,33 +143,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useSafetyApplicationStore } from '@/stores/safetyApplication'
+import { useAppStore } from '@/stores/counter'
+import { safetyApi } from '@/utils/utils'
 
-const store = useSafetyApplicationStore()
-const records = ref([])
+const store = useAppStore()
 const detailDialogVisible = ref(false)
 const currentRecord = ref(null)
-
-const getStatusType = (status) => {
-  const types = {
-    '审核中': 'warning',
-    '已通过': 'success',
-    '已拒绝': 'danger'
-  }
-  return types[status] || 'info'
-}
-
-const formatWorkingTime = (times) => {
-  if (!times) return ''
-  const timeMap = {
-    'morning': '上午',
-    'afternoon': '下午',
-    'fullDay': '全天',
-    'twoDays': '两天',
-    'threeDays': '三天'
-  }
-  return times.map(t => timeMap[t] || t).join('、')
-}
 
 const formatDate = (date) => {
   if (!date) return ''
@@ -189,11 +162,16 @@ const viewDetail = (row) => {
 
 onMounted(async () => {
   try {
-    // 直接加载本地存储的记录，不依赖 userInfo
-    await store.loadHistoricalRecord()
-    records.value = store.historicalRecords
+    // 从后端获取历史记录
+    store.historicalRecords = await safetyApi.getHistoricalRecords()
   } catch (error) {
     console.error('加载记录失败:', error)
+    ElMessage.error({
+        message: '加载记录失败:' || error,
+        duration: 0,
+        showClose: true
+      })
+    
   }
 })
 </script>
@@ -296,16 +274,22 @@ onMounted(async () => {
 }
 
 .close-btn {
-  width: 120px;  /* 设置固定宽度 */
+  width: 120px;
+  /* 设置固定宽度 */
 }
 
 @media (max-width: 768px) {
   .dialog-footer {
     justify-content: center;
   }
-  
+
   .close-btn {
-    width: 160px;  /* 在移动端设置更大的宽度 */
+    width: 160px;
+    /* 在移动端设置更大的宽度 */
   }
 }
-</style> 
+
+h1 {
+  color: #303133;
+}
+</style>

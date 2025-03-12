@@ -1,45 +1,31 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { isWechatBrowser, generateQRCode } from '@/utils/wechat'
-import { Plus, Document } from '@element-plus/icons-vue'
+import { Plus, Document, User} from '@element-plus/icons-vue'
+import { useAppStore } from '@/stores/counter';
 
-const isWechat = ref(false)
-const qrCodeUrl = ref('')
-
-onMounted(() => {
-  isWechat.value = isWechatBrowser()
-
-  if (!isWechat.value) {
-    // 生成二维码
-    const appUrl = import.meta.env.VITE_APP_URL || window.location.origin
-    console.log('App URL:', appUrl)
-    qrCodeUrl.value = generateQRCode(appUrl)
-  }
-})
+const store = useAppStore()
 </script>
 
 <template>
   <div class="home-container">
     <h1>安全作业申请系统</h1>
-
-    <!-- 根据环境显示不同内容 -->
-    <template v-if="!isWechat">
-      <div class="qrcode-container">
-        <p class="instruction">请使用手机微信扫描下方二维码：</p>
-        <img :src="qrCodeUrl" alt="微信扫码" class="qrcode" />
-      </div>
-    </template>
-
-    <template v-else>
-      <div class="action-cards">
-        <el-card class="action-card" @click="$router.push('/apply')">
+    <div class="action-cards">
+      <el-card class="action-card" @click="$router.push('/apply')">
+        <el-icon size="40">
+          <Plus />
+        </el-icon>
+        <h2>新建申请</h2>
+        <p>创建新的安全作业申请</p>
+      </el-card>
+      <template v-if="store.userId === null">
+        <el-card class="action-card" @click="$router.push('/login')">
           <el-icon size="40">
-            <Plus />
+            <User />
           </el-icon>
-          <h2>新建申请</h2>
-          <p>创建新的安全作业申请</p>
+          <h2>登录系统</h2>
+          <p>输入必要信息以查看历史提交</p>
         </el-card>
-
+      </template>
+      <template v-else>
         <el-card class="action-card" @click="$router.push('/records')">
           <el-icon size="40">
             <Document />
@@ -47,8 +33,8 @@ onMounted(() => {
           <h2>申请记录</h2>
           <p>查看历史申请记录</p>
         </el-card>
-      </div>
-    </template>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -58,26 +44,6 @@ onMounted(() => {
   margin: 40px auto;
   padding: 20px;
   text-align: center;
-}
-
-.qrcode-container {
-  margin-top: 40px;
-  padding: 20px;
-  background: #f5f7fa;
-  border-radius: 8px;
-}
-
-.instruction {
-  color: #606266;
-  margin-bottom: 20px;
-  font-size: 16px;
-}
-
-.qrcode {
-  width: 200px;
-  height: 200px;
-  margin: 20px auto;
-  display: block;
 }
 
 .action-cards {

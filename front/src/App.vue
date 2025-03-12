@@ -1,27 +1,31 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+import { RouterView } from 'vue-router'
+import { useAppStore } from '@/stores/counter';
+
+const store = useAppStore()
 </script>
 
 <template>
   <el-container class="layout-container">
     <el-header>
-      <div class="header-content">
-        <h1 v-if="$route.path !== '/'" @click="$router.push('/')" style="cursor: pointer">
-          安全作业申请系统
-        </h1>
-        <el-menu mode="horizontal" :router="true" :default-active="$route.path" class="nav-menu">
-          <el-menu-item index="/">首页</el-menu-item>
-          <el-menu-item index="/apply">新建申请</el-menu-item>
+      <el-menu mode="horizontal" :router="true" :default-active="$route.path" class="nav-menu">
+        <el-menu-item index="/">首页</el-menu-item>
+        <el-menu-item index="/scan">手机扫码</el-menu-item>
+        <el-menu-item index="/apply">新建申请</el-menu-item>
+        <template v-if="store.userId === null">
+          <el-menu-item index="/login">登录</el-menu-item>
+        </template>
+        <template v-else>
           <el-menu-item index="/records">申请记录</el-menu-item>
-        </el-menu>
-      </div>
+        </template>
+      </el-menu>
     </el-header>
-
     <el-main>
-      <router-view />
+      <RouterView />
     </el-main>
-
     <el-footer>
-      <p>© 2024 安全作业申请系统 - All Rights Reserved</p>
+      <p>© 2025 城轨事业部精益信息化组 - All Rights Reserved</p>
     </el-footer>
   </el-container>
 </template>
@@ -37,41 +41,9 @@
   padding: 0;
 }
 
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-  height: auto;
-  flex-direction: column;
-  align-items: center;
-}
-
-.header-content h1 {
-  margin: 10px 0;
-  font-size: 20px;
-  color: #303133;
-  text-align: center;
-}
-
 .nav-menu {
   width: 100%;
   justify-content: center;
-}
-
-@media (min-width: 768px) {
-  .header-content {
-    flex-direction: row;
-    justify-content: space-between;
-    height: 100%;
-  }
-
-  .header-content h1 {
-    margin: 0;
-  }
-
-  .nav-menu {
-    width: auto;
-  }
 }
 
 .el-main {
