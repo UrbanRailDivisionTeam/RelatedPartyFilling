@@ -4,19 +4,26 @@
 
     <!-- 移动端记录列表 -->
     <div class="mobile-records">
-      <el-card v-for="record in store.historicalRecords" :key="record.applicationNumber" class="record-card">
-        <div class="record-header">
-          <span class="application-number">{{ record.applicationNumber }}</span>
-          <span class="submit-time">{{ formatDate(record.submitTime) }}</span>
-        </div>
-        <div class="record-content">
-          <p><strong>作业类型：</strong>{{ record.workType }}</p>
-          <p><strong>作业内容：</strong>{{ record.workContent }}</p>
-          <p><strong>作业地点：</strong>{{ record.workLocation }}</p>
-          <p><strong>计划时间：</strong>{{ formatDate(record.startDate) }} 至 {{ formatDate(record.endDate) }}</p>
-          <el-button type="primary" link @click="viewDetail(record)">查看详情</el-button>
-        </div>
-      </el-card>
+      <template v-if="store.historicalRecords.length">
+        <el-card v-for="record in store.historicalRecords" :key="record.applicationNumber" class="record-card">
+          <div class="record-header">
+            <span class="application-number">{{ record.applicationNumber }}</span>
+            <span class="submit-time">{{ formatDate(record.submitTime) }}</span>
+          </div>
+          <div class="record-content">
+            <p><strong>作业类型：</strong>{{ record.workType }}</p>
+            <p><strong>作业内容：</strong>{{ record.workContent }}</p>
+            <p><strong>作业地点：</strong>{{ record.workLocation }}</p>
+            <p><strong>计划时间：</strong>{{ formatDate(record.startDate) }} 至 {{ formatDate(record.endDate) }}</p>
+            <el-button type="primary" link @click="viewDetail(record)">查看详情</el-button>
+          </div>
+        </el-card>
+      </template>
+      <template v-else>
+        <el-text class="mx-1" size="large" type="primary" style="text-align: center;">
+          还没有记录，请点击新建申请来创建记录
+        </el-text>
+      </template>
     </div>
 
     <!-- 详情对话框 -->
@@ -50,7 +57,7 @@
           </div>
           <div class="info-item">
             <label>开工时长</label>
-            <span>{{ currentRecord.workingHours}}</span>
+            <span>{{ currentRecord.workingHours }}</span>
           </div>
           <div class="info-item">
             <label>作业地点：</label>
@@ -163,15 +170,15 @@ const viewDetail = (row) => {
 onMounted(async () => {
   try {
     // 从后端获取历史记录
-    store.historicalRecords = await safetyApi.getHistoricalRecords()
+    store.historicalRecords = (await safetyApi.getHistoricalRecords()).data
   } catch (error) {
     console.error('加载记录失败:', error)
     ElMessage.error({
-        message: '加载记录失败:' || error,
-        duration: 0,
-        showClose: true
-      })
-    
+      message: '加载记录失败:' || error,
+      duration: 0,
+      showClose: true
+    })
+
   }
 })
 </script>
@@ -290,6 +297,7 @@ onMounted(async () => {
 }
 
 h1 {
+  text-align: center;
   color: #303133;
 }
 </style>

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from peewee import PostgresqlDatabase, Model, TextField, IntegerField, BooleanField, IdentityField, ForeignKeyField
+from peewee import PostgresqlDatabase, Model, TextField, IntegerField, BooleanField
 
 # ------------前后端请求的模型------------
 class SafeForm(BaseModel):
@@ -37,8 +37,8 @@ class SafeForm(BaseModel):
 
 # ------------数据库表的模型------------
 database = PostgresqlDatabase(
-    'public',
-    host='172.29.22.83',
+    'postgres',
+    host='172.30.240.39',
     port=5432,
     user='postgres',
     password='Swq8855830.')
@@ -76,8 +76,6 @@ class SafeFormHead(bd_base_model):
     notifierDepartment = TextField(null=False)
 
     accompaningCount = IntegerField()
-    accompaningPersons: list
-    age = IntegerField()
     
 class workLocation(bd_base_model):
     formApplicationNumber = TextField(null=False)

@@ -12,8 +12,8 @@
         <el-input v-model="store.applicationForm.idNumber" placeholder="身份证号" required :maxlength="18"
           @blur="validateIdNumber" />
         <el-input v-model="store.applicationForm.companyName" placeholder="公司名称" required />
-        <el-input v-model="store.applicationForm.phoneNumber" placeholder="联系电话" required :maxlength="11"
-          @blur="validatePhoneNumber" />
+        <el-input v-model="store.applicationForm.phoneNumber" placeholder="联系电话" required :maxlength="11" 
+        :disabled="numberDisable" @blur="validatePhoneNumber"/>
       </div>
 
       <!-- 作业信息部分 -->
@@ -146,9 +146,11 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAppStore } from '@/stores/counter'
 import { safetyApi } from '@/utils/utils'
+import dayjs from 'dayjs'; 
 
 const store = useAppStore()
 const router = useRouter()
+const numberDisable = ref(false)
 
 // 作业内容选项映射
 const workContentMap = {
@@ -392,7 +394,7 @@ const handleSubmit = async () => {
       store.userId = store.applicationForm.phoneNumber
     }
     // 添加提交相关的信息
-    store.applicationForm.submitTime = format(new Date(), 'yyyy-MM-dd HH:mm:ss');
+    store.applicationForm.submitTime = dayjs().format('YYYY-MM-DD HH:mm:ss'); 
     store.applicationForm.applicationNumber = store.applicationForm.name + store.applicationForm.idNumber + store.applicationForm.phoneNumber
     // 提交申请
     await safetyApi.submitApplication()
@@ -453,6 +455,13 @@ onMounted(async () => {
           showClose: true
         })
       }
+    }
+    // 自动填充电话号
+    if (store.userId !== null && store.applicationForm.phoneNumber === '') {
+      console.log("执行到了这里")
+      console.log(numberDisable)
+      store.applicationForm.phoneNumber = store.userId
+      numberDisable.value = true
     }
   }
   catch (error) {

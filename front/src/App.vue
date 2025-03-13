@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { RouterView } from 'vue-router'
 import { useAppStore } from '@/stores/counter';
 
