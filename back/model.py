@@ -38,7 +38,7 @@ class SafeForm(BaseModel):
 # ------------数据库表的模型------------
 database = PostgresqlDatabase(
     'postgres',
-    host='172.30.240.39',
+    host='db',
     port=5432,
     user='postgres',
     password='Swq8855830.')
