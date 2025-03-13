@@ -1,6 +1,6 @@
 // ------------------通用方法------------------
 // 生成二维码链接
-export const generateQRCode = (url) => {
+export const generateQRCode = () => {
   // 使用环境变量中的 URL
   const appUrl = import.meta.env.VITE_APP_URL || window.location.origin
   return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(appUrl)}`

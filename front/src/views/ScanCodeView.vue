@@ -5,8 +5,7 @@ import { generateQRCode } from '@/utils/utils'
 const qrCodeUrl = ref('')
 onMounted(() => {
   // 生成二维码
-  const appUrl = import.meta.env.VITE_APP_URL
-  qrCodeUrl.value = generateQRCode(appUrl)
+  qrCodeUrl.value = generateQRCode()
 })
 
 </script>

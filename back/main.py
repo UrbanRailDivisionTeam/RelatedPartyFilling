@@ -1,31 +1,43 @@
 import uvicorn
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse  # 响应html
+from fastapi.staticfiles import StaticFiles # 设置静态目录
 from fastapi.middleware.cors import CORSMiddleware
 from peewee import JOIN
 from model import create_tables, SafeForm, SafeFormHead, workLocation, dangerTypes, accompaningPersons
 
-app = FastAPI(root_path="/api")
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-    "http://localhost:5173",
-    "http://localhost:5000",
-]
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI()
+# origins = [
+#     "http://localhost",
+#     "http://localhost:8080",
+#     "http://localhost:5173",
+#     "http://localhost:5000",
+# ]
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+app.mount("/static", StaticFiles(directory='static'), name="dist")
+app.mount("/assets", StaticFiles(directory='static/assets'), name="dist")
+
+@app.get("/")
+def main():
+    html_content = ''
+    with open('static/index.html') as f:
+        html_content = f.read()
+    return HTMLResponse(content=html_content, status_code=200)
 
 # 用户登录
-@app.get("/safety/user/{user_id}")
+@app.get("/api/safety/user/{user_id}")
 async def login_user(user_id: str):
     return {"message": "successes"}
 
 # 提交申请
-@app.post("/safety/submit")
+@app.post("/api/safety/submit")
 async def applications(safefrom: SafeForm):
     temp_head = SafeFormHead()
     temp_head.applicationNumber = safefrom.applicationNumber
@@ -75,7 +87,7 @@ async def applications(safefrom: SafeForm):
     return {"message": "successes"}
 
 # 获取历史记录
-@app.get("/safety/applications/{user_id}")
+@app.get("/api/safety/applications/{user_id}")
 async def root(user_id: str):
     res_head = (SafeFormHead
            .select()
@@ -139,7 +151,6 @@ async def root(user_id: str):
                 temp["workLocation"].append(temp2)
         res.append(temp)
     return res
-
 
 if __name__ == "__main__":
     create_tables()
