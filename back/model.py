@@ -25,7 +25,6 @@ class SafeForm(BaseModel):
     workBasis: str
     basisNumber: str
 
-    isDangerousWork: bool
     dangerTypes: list
 
     notifierName: str
@@ -38,7 +37,7 @@ class SafeForm(BaseModel):
 # ------------数据库表的模型------------
 database = PostgresqlDatabase(
     'postgres',
-    host='db',
+    host='relatedpartyfilling-db-1',
     port=5432,
     user='postgres',
     password='Swq8855830.')
@@ -68,8 +67,6 @@ class SafeFormHead(bd_base_model):
     workContent = TextField(null=False)
     workBasis = TextField(null=False)
     basisNumber = TextField(null=False)
-
-    isDangerousWork = BooleanField()
 
     notifierName = TextField(null=False)
     notifierNumber = TextField(null=False)

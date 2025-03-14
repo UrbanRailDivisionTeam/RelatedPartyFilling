@@ -12,7 +12,7 @@ import { useAppStore } from '@/stores/counter'
 const store = useAppStore()
 // 创建 axios 实例
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: '/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json'

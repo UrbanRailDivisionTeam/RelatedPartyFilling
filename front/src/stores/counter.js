@@ -26,7 +26,6 @@ export const useAppStore = defineStore('counter', () => {
     workBasis: '',
     basisNumber: '',
 
-    isDangerousWork: false,
     dangerTypes: [],
 
     notifierName: '',

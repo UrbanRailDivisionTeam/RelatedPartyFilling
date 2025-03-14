@@ -12,8 +12,8 @@
         <el-input v-model="store.applicationForm.idNumber" placeholder="身份证号" required :maxlength="18"
           @blur="validateIdNumber" />
         <el-input v-model="store.applicationForm.companyName" placeholder="公司名称" required />
-        <el-input v-model="store.applicationForm.phoneNumber" placeholder="联系电话" required :maxlength="11" 
-        :disabled="numberDisable" @blur="validatePhoneNumber"/>
+        <el-input v-model="store.applicationForm.phoneNumber" placeholder="联系电话" required :maxlength="11"
+          :disabled="numberDisable" @blur="validatePhoneNumber" />
       </div>
 
       <!-- 作业信息部分 -->
@@ -39,8 +39,7 @@
 
 
         <!-- 作业地点 -->
-        <el-select v-model="store.applicationForm.workLocation" placeholder="作业地点" required multiple clearable
-          @change="handleWorkLocationChange">
+        <el-select v-model="store.applicationForm.workLocation" placeholder="作业地点" required multiple clearable>
           <el-option label="总成车间" value="总成车间" />
           <el-option label="老调试" value="老调试" />
           <el-option label="新调试" value="新调试" />
@@ -90,22 +89,18 @@
       <!-- 危险作业信息 -->
       <div class="form-section">
         <h2>危险作业信息 <span class="required">*</span></h2>
-        <el-checkbox-group v-model="store.applicationForm.dangerTypes" @change="handleDangerTypesChange">
-          <el-checkbox label="动火" value="动火">动火作业</el-checkbox>
+        <el-checkbox-group v-model="store.applicationForm.dangerTypes">
+          <el-checkbox label="配合静动调" value="配合静动调">配合车辆静、动态调试作业</el-checkbox>
           <el-checkbox label="登高" value="登高">登高作业</el-checkbox>
-          <el-checkbox label="临边" value="临边">临边作业</el-checkbox>
-          <el-checkbox label="起重" value="起重">起重作业</el-checkbox>
+          <el-checkbox label="动火" value="动火">动火作业</el-checkbox>
+          <el-checkbox label="危化品" value="危化品">危化品使用</el-checkbox>
+          <el-checkbox label="金属切割" value="金属切割">金属切割作业</el-checkbox>
+          <el-checkbox label="吊装" value="吊装">吊装作业</el-checkbox>
+          <el-checkbox label="临时用电" value="临时用电">临时用电作业</el-checkbox>
           <el-checkbox label="有限空间" value="有限空间">有限空间作业</el-checkbox>
+          <el-checkbox label="交叉" value="交叉">交叉作业</el-checkbox>
+          <el-checkbox label="临边" value="临边">临边作业</el-checkbox>
         </el-checkbox-group>
-
-        <div class="form-item">
-          <label class="form-label">是否危险作业：<span class="required">*</span></label>
-          <el-radio-group v-model="store.applicationForm.isDangerousWork"
-            :disabled="store.applicationForm.workLocation.includes('库外') || store.applicationForm.dangerTypes.length > 0">
-            <el-radio :label="true" :value="true">是</el-radio>
-            <el-radio :label="false" :value="false">否</el-radio>
-          </el-radio-group>
-        </div>
       </div>
 
       <!-- 事业部对接人信息 -->
@@ -146,7 +141,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAppStore } from '@/stores/counter'
 import { safetyApi } from '@/utils/utils'
-import dayjs from 'dayjs'; 
+import dayjs from 'dayjs';
 
 const store = useAppStore()
 const router = useRouter()
@@ -199,29 +194,6 @@ const handleWorkTypeChange = (values) => {
     store.applicationForm.projectName = ''
     store.applicationForm.vehicleNumber = ''
     store.applicationForm.trackPosition = ''
-  }
-}
-
-// 修改作业地点变更处理函数
-const handleWorkLocationChange = (values) => {
-  store.applicationForm.workLocation = values || []
-  // 如果选择包含库外作业，自动设置为危险作业并锁定
-  if (values.includes('库外')) {
-    store.applicationForm.isDangerousWork = true
-  }
-  else if (store.applicationForm.dangerTypes.length === 0) {
-    // 如果不包含库外且没有选择危险作业类型，则允许修改危险作业状态
-    store.applicationForm.isDangerousWork = false
-  }
-}
-
-// 修改危险作业类型变更处理函数
-const handleDangerTypesChange = (values) => {
-  if (values.length > 0) {
-    store.applicationForm.isDangerousWork = true
-  } else if (!store.applicationForm.workLocation.includes('库外')) {
-    // 只有当没有选择库外作业时，才允许修改为非危险作业
-    store.applicationForm.isDangerousWork = false
   }
 }
 
@@ -394,7 +366,7 @@ const handleSubmit = async () => {
       store.userId = store.applicationForm.phoneNumber
     }
     // 添加提交相关的信息
-    store.applicationForm.submitTime = dayjs().format('YYYY-MM-DD HH:mm:ss'); 
+    store.applicationForm.submitTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
     store.applicationForm.applicationNumber = store.applicationForm.name + store.applicationForm.idNumber + store.applicationForm.phoneNumber
     // 提交申请
     await safetyApi.submitApplication()

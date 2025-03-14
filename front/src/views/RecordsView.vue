@@ -111,10 +111,6 @@
             <label>危险作业类型：</label>
             <span>{{ currentRecord.dangerTypes.join('、') || '无' }}</span>
           </div>
-          <div class="info-item">
-            <label>是否危险作业：</label>
-            <span>{{ currentRecord.isDangerousWork ? '是' : '否' }}</span>
-          </div>
         </div>
 
         <div class="detail-section">
