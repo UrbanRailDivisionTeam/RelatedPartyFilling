@@ -58,4 +58,8 @@ const applicationNumber = ref(route.query.applicationNumber || '')
 .title-style{
   color: #303133;
 }
+
+h1 {
+  color: #303133;
+}
 </style>

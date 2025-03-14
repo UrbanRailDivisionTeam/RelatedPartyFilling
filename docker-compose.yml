@@ -1,10 +1,14 @@
 services:
   backend:
+    container_name: backend
+    restart: always
     build:
       context: ./back
       dockerfile: Dockerfile
     ports:
       - "80:8000"
+    links:
+      - db
     depends_on:
       - db
     environment:
@@ -13,8 +17,12 @@ services:
       - DATABASE_NAME=postgres
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=Swq8855830.
+    networks:
+      - mynet
 
   db:
+    container_name: db
+    restart: always
     image: postgres:17
     environment:
       POSTGRES_USER: postgres
@@ -24,6 +32,12 @@ services:
       - "10086:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - mynet
 
 volumes:
   pgdata:
+
+networks:
+  mynet:
+    driver: bridge

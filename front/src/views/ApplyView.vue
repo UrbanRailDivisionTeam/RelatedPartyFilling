@@ -234,20 +234,20 @@ const validateNotifierNumber = () => {
 }
 
 // 处理随行人数变更
-const handleAccompaningCountChange = (value) => {
+const handleAccompaningCountChange = (currentValue, oldValue) => {
   const currentLength = store.applicationForm.accompaningPersons.length
-  if (value > currentLength) {
+  if (store.applicationForm.accompaningCount > currentLength) {
     // 添加新的随行人员
-    for (let i = currentLength; i < value; i++) {
+    for (let i = currentLength; i < store.applicationForm.accompaningCount; i++) {
       store.applicationForm.accompaningPersons.push({
         name: '',
         idNumber: '',
         phoneNumber: ''
       })
     }
-  } else if (value < currentLength) {
+  } else if (store.applicationForm.accompaningCount < currentLength) {
     // 移除多余的随行人员
-    store.applicationForm.accompaningPersons.splice(value)
+    store.applicationForm.accompaningPersons.splice(store.applicationForm.accompaningCount)
   }
 }
 
@@ -362,12 +362,12 @@ const handleSubmit = async () => {
     // 进行自定义验证
     validateForm()
     // 如果没有登陆，自动根据电话号登录
-    if (store.userId === '') {
+    if (store.userId === null) {
       store.userId = store.applicationForm.phoneNumber
     }
     // 添加提交相关的信息
     store.applicationForm.submitTime = dayjs().format('YYYY-MM-DD HH:mm:ss');
-    store.applicationForm.applicationNumber = store.applicationForm.name + store.applicationForm.idNumber + store.applicationForm.phoneNumber
+    store.applicationForm.applicationNumber = store.applicationForm.idNumber + store.applicationForm.phoneNumber + store.applicationForm.submitTime
     // 提交申请
     await safetyApi.submitApplication()
     // 获取历史数据
@@ -383,27 +383,6 @@ const handleSubmit = async () => {
     })
   }
 }
-
-// 监听表单数据变化
-watch(store.applicationForm, (newValue) => {
-  // 如果填写了电话号自动更新
-  if (store.userId === null && newValue.phoneNumber !== null) {
-    store.userId = newValue.phoneNumber
-    store.historicalRecords = safetyApi.getHistoricalRecords().data
-  }
-  // 确保必填字段有值
-  const formData = {
-    ...newValue,
-    workLocation: newValue.workLocation || [],
-    workType: newValue.workType || '',
-    workContent: newValue.workContent || '',
-    notifierName: newValue.notifierName || '',
-    notifierNumber: newValue.notifierNumber || '',
-    notifierDepartment: newValue.notifierDepartment || '',
-    notifierPhone: newValue.notifierPhone || ''
-  }
-  store.applicationForm = formData
-}, { deep: true })
 
 onMounted(async () => {
   try {
@@ -430,8 +409,6 @@ onMounted(async () => {
     }
     // 自动填充电话号
     if (store.userId !== null && store.applicationForm.phoneNumber === '') {
-      console.log("执行到了这里")
-      console.log(numberDisable)
       store.applicationForm.phoneNumber = store.userId
       numberDisable.value = true
     }

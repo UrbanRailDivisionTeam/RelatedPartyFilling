@@ -1,5 +1,4 @@
 <script setup>
-import { ref } from 'vue'
 import { RouterView } from 'vue-router'
 import { useAppStore } from '@/stores/counter';
 
