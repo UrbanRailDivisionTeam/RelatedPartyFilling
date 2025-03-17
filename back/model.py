@@ -57,6 +57,7 @@ class SafeFormHead(bd_base_model):
     startDate = TextField(null=False)
     startTime = TextField(null=False)
     workingHours = TextField(null=False)
+    workLocation = TextField(null=False)
     workType = TextField(null=False)
 
     isProductWork = BooleanField()
@@ -67,20 +68,14 @@ class SafeFormHead(bd_base_model):
     workContent = TextField(null=False)
     workBasis = TextField(null=False)
     basisNumber = TextField(null=False)
+    
+    dangerTypes = TextField(null=False)
 
     notifierName = TextField(null=False)
     notifierNumber = TextField(null=False)
     notifierDepartment = TextField(null=False)
 
     accompaningCount = IntegerField()
-    
-class workLocation(bd_base_model):
-    formApplicationNumber = TextField(null=False)
-    workLocation = TextField(null=False)
-    
-class dangerTypes(bd_base_model):
-    formApplicationNumber = TextField(null=False)
-    dangerTypes = TextField(null=False)
     
 class accompaningPersons(bd_base_model):
     formApplicationNumber = TextField(null=False)
@@ -90,4 +85,4 @@ class accompaningPersons(bd_base_model):
 
 def create_tables():
     with database:
-        database.create_tables([SafeFormHead, workLocation, dangerTypes, accompaningPersons])
+        database.create_tables([SafeFormHead, accompaningPersons])

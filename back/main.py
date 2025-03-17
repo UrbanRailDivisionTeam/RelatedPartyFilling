@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse  # 响应html
 from fastapi.staticfiles import StaticFiles # 设置静态目录
 from peewee import JOIN
-from model import create_tables, SafeForm, SafeFormHead, workLocation, dangerTypes, accompaningPersons
+from model import create_tables, SafeForm, SafeFormHead, accompaningPersons
 
 app = FastAPI()
 
@@ -53,19 +53,15 @@ async def applications(safefrom: SafeForm):
         temp_head.notifierNumber = safefrom.notifierNumber
         temp_head.notifierDepartment = safefrom.notifierDepartment
         temp_head.accompaningCount = safefrom.accompaningCount
-        temp_head.save()
-        
         for ch in safefrom.workLocation:
-            temp_work = workLocation()
-            temp_work.formApplicationNumber = safefrom.applicationNumber
-            temp_work.workLocation = ch
-            temp_work.save()
-            
+            temp_work = ","
+            temp_work += (ch + ",")
+        temp_head.workLocation = temp_work
         for ch in safefrom.dangerTypes:
-            temp_danger = dangerTypes()
-            temp_danger.formApplicationNumber = safefrom.applicationNumber
-            temp_danger.dangerTypes = ch
-            temp_danger.save()
+            temp_danger = ","
+            temp_danger += (ch + ",")
+        temp_head.dangerTypes = temp_danger
+        temp_head.save()
             
         for ch in safefrom.accompaningPersons:
             temp_person = accompaningPersons()
@@ -87,16 +83,6 @@ async def root(user_id: str):
     try:
         res_head = (SafeFormHead
             .select()
-            .where(SafeFormHead.phoneNumber == user_id)
-            )
-        res_work = (workLocation
-            .select()
-            .join(SafeFormHead, JOIN.LEFT_OUTER, on=(SafeFormHead.applicationNumber == workLocation.formApplicationNumber))
-            .where(SafeFormHead.phoneNumber == user_id)
-            )
-        res_danger = (dangerTypes
-            .select()
-            .join(SafeFormHead, JOIN.LEFT_OUTER, on=(SafeFormHead.applicationNumber == dangerTypes.formApplicationNumber))
             .where(SafeFormHead.phoneNumber == user_id)
             )
         res_accompaning = (accompaningPersons
@@ -131,12 +117,13 @@ async def root(user_id: str):
             temp["workLocation"] = []
             temp["dangerTypes"] = []
             temp["accompaningPersons"] = []
-            for ch_work in res_work:
-                if ch_work.formApplicationNumber == ch_head.applicationNumber:
-                    temp["workLocation"].append(ch_work.workLocation)
-            for ch_danger in res_danger:
-                if ch_danger.formApplicationNumber == ch_head.applicationNumber:
-                    temp["dangerTypes"].append(ch_danger.dangerTypes)
+            
+            temp_workLocation = str(ch_head.workLocation).split(',')
+            for ch_work in temp_workLocation:
+                temp["workLocation"].append(ch_work)
+            temp_dangerTypes = str(ch_head.dangerTypes).split(',')
+            for ch_danger in temp_dangerTypes:
+                temp["dangerTypes"].append(ch_danger)
             for ch_accompaning in res_accompaning:
                 if ch_accompaning.formApplicationNumber == ch_head.applicationNumber:
                     temp2 = {}
