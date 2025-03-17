@@ -53,12 +53,12 @@ async def applications(safefrom: SafeForm):
         temp_head.notifierNumber = safefrom.notifierNumber
         temp_head.notifierDepartment = safefrom.notifierDepartment
         temp_head.accompaningCount = safefrom.accompaningCount
+        temp_work = ","
         for ch in safefrom.workLocation:
-            temp_work = ","
             temp_work += (ch + ",")
         temp_head.workLocation = temp_work
+        temp_danger = ","
         for ch in safefrom.dangerTypes:
-            temp_danger = ","
             temp_danger += (ch + ",")
         temp_head.dangerTypes = temp_danger
         temp_head.save()

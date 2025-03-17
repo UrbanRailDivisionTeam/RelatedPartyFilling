@@ -90,16 +90,16 @@
       <div class="form-section">
         <h2>危险作业信息 <span class="required">*</span></h2>
         <el-checkbox-group v-model="store.applicationForm.dangerTypes">
-          <el-checkbox label="配合静动调" value="配合静动调">配合车辆静、动态调试作业</el-checkbox>
-          <el-checkbox label="登高" value="登高">登高作业</el-checkbox>
-          <el-checkbox label="动火" value="动火">动火作业</el-checkbox>
-          <el-checkbox label="危化品" value="危化品">危化品使用</el-checkbox>
-          <el-checkbox label="金属切割" value="金属切割">金属切割作业</el-checkbox>
-          <el-checkbox label="吊装" value="吊装">吊装作业</el-checkbox>
-          <el-checkbox label="临时用电" value="临时用电">临时用电作业</el-checkbox>
-          <el-checkbox label="有限空间" value="有限空间">有限空间作业</el-checkbox>
-          <el-checkbox label="交叉" value="交叉">交叉作业</el-checkbox>
-          <el-checkbox label="临边" value="临边">临边作业</el-checkbox>
+          <el-checkbox label="配合车辆静、动态调试作业" value="配合车辆静、动态调试作业">配合车辆静、动态调试作业</el-checkbox>
+          <el-checkbox label="登高作业" value="登高作业">登高作业</el-checkbox>
+          <el-checkbox label="动火作业" value="动火作业">动火作业</el-checkbox>
+          <el-checkbox label="危化品使用" value="危化品使用">危化品使用</el-checkbox>
+          <el-checkbox label="金属切割作业" value="金属切割作业">金属切割作业</el-checkbox>
+          <el-checkbox label="吊装作业" value="吊装作业">吊装作业</el-checkbox>
+          <el-checkbox label="临时用电作业" value="临时用电作业">临时用电作业</el-checkbox>
+          <el-checkbox label="有限空间作业" value="有限空间作业">有限空间作业</el-checkbox>
+          <el-checkbox label="交叉作业" value="交叉作业">交叉作业</el-checkbox>
+          <el-checkbox label="临边作业" value="临边作业">临边作业</el-checkbox>
         </el-checkbox-group>
       </div>
 
