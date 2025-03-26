@@ -53,10 +53,7 @@ async def applications(safefrom: SafeForm):
         temp_head.notifierNumber = safefrom.notifierNumber
         temp_head.notifierDepartment = safefrom.notifierDepartment
         temp_head.accompaningCount = safefrom.accompaningCount
-        temp_work = ","
-        for ch in safefrom.workLocation:
-            temp_work += (ch + ",")
-        temp_head.workLocation = temp_work
+        temp_head.workLocation = safefrom.workLocation
         temp_danger = ","
         for ch in safefrom.dangerTypes:
             temp_danger += (ch + ",")
@@ -114,13 +111,9 @@ async def root(user_id: str):
             temp["notifierNumber"] = ch_head.notifierNumber
             temp["notifierDepartment"] = ch_head.notifierDepartment
             temp["accompaningCount"] = ch_head.accompaningCount
-            temp["workLocation"] = []
+            temp["workLocation"] = ch_head.workLocation
             temp["dangerTypes"] = []
             temp["accompaningPersons"] = []
-            
-            temp_workLocation = str(ch_head.workLocation).split(',')
-            for ch_work in temp_workLocation:
-                temp["workLocation"].append(ch_work)
             temp_dangerTypes = str(ch_head.dangerTypes).split(',')
             for ch_danger in temp_dangerTypes:
                 temp["dangerTypes"].append(ch_danger)

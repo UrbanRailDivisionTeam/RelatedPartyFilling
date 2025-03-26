@@ -13,7 +13,7 @@ class SafeForm(BaseModel):
     startDate: str
     startTime: str
     workingHours: str
-    workLocation: list
+    workLocation: str
     workType: str
 
     isProductWork: bool
