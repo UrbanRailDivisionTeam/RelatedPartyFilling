@@ -123,7 +123,7 @@ async def root(user_id: str):
                     temp2["name"] = ch_accompaning.name
                     temp2["idNumber"] = ch_accompaning.idNumber
                     temp2["phoneNumber"] = ch_accompaning.phoneNumber
-                    temp["workLocation"].append(temp2)
+                    temp["accompaningPersons"].append(temp2)
             res.append(temp)
     except Exception as e:
         print(e)

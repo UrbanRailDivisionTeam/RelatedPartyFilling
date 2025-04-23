@@ -58,6 +58,9 @@
           <el-option label="基建施工" value="基建施工" />
           <el-option label="生产设备维修" value="生产设备维修" />
           <el-option label="办公设备设施维修" value="办公设备设施维修" />
+          <el-option label="车辆检修作业" value="车辆检修作业" />
+          <el-option label="部件装配作业" value="部件装配作业" />
+          <el-option label="配合车辆调试作业" value="配合车辆调试作业" />
         </el-select>
 
         <!-- 产品类作业相关字段 -->
@@ -101,6 +104,7 @@
           <el-checkbox label="有限空间作业" value="有限空间作业">有限空间作业</el-checkbox>
           <el-checkbox label="交叉作业" value="交叉作业">交叉作业</el-checkbox>
           <el-checkbox label="临边作业" value="临边作业">临边作业</el-checkbox>
+          <el-checkbox label="无" value="无">无</el-checkbox>
         </el-checkbox-group>
       </div>
 
@@ -108,8 +112,7 @@
       <div class="form-section">
         <h2>事业部对接人信息 <span class="required">*</span></h2>
         <el-input v-model="store.applicationForm.notifierName" placeholder="对接人姓名" required />
-        <el-input v-model="store.applicationForm.notifierNumber" placeholder="对接人工号（选填，12位工号）" :maxlength="12"
-          @blur="validateNotifierNumber" />
+        <el-input v-model="store.applicationForm.notifierNumber" placeholder="对接人工号（12位工号）" :maxlength="12" @blur="validateNotifierNumber" required/>
         <el-input v-model="store.applicationForm.notifierDepartment" placeholder="所属部门" required />
       </div>
 
@@ -137,7 +140,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useAppStore } from '@/stores/counter'
@@ -177,7 +180,10 @@ const workContentMap = {
   ],
   '基建施工': ['建筑物及附属设施维护维修'],
   '生产设备维修': ['设备常规维护保养及故障维修'],
-  '办公设备设施维修': ['电脑', '打印机', '音响']
+  '办公设备设施维修': ['电脑', '打印机', '音响'],
+  '车辆检修作业': ['车辆检修作业'],
+  '部件装配作业': ['部件装配作业'],
+  '配合车辆调试作业': ['配合静调作业', '配合动调作业']
 }
 // 用于验证的正则
 const idNumberReg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/
@@ -337,6 +343,7 @@ const validateForm = () => {
 
   // 通知人信息验证
   if (!store.applicationForm.notifierName?.trim()) throw new Error('请填写对接人姓名')
+  if (!store.applicationForm.notifierNumber?.trim()) throw new Error('请填写对接人工号')
   if (!store.applicationForm.notifierDepartment?.trim()) throw new Error('请填写所属部门')
 
   // 随行人员验证
