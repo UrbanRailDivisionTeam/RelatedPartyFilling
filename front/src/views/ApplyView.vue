@@ -40,7 +40,7 @@
 
         <!-- 作业地点 -->
         <el-select v-model="store.applicationForm.workLocation" placeholder="作业地点" required clearable>
-          <el-option label="总成所属交车落车调车区域" value="总成所属交车落车调车区域" />
+          <el-option label="交车车间落车调车区" value="交车车间落车调车区" />
           <el-option label="总成车间其他区域" value="总成车间其他区域" />
           <el-option label="老调试" value="老调试" />
           <el-option label="新调试" value="新调试" />
