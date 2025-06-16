@@ -41,7 +41,7 @@
         <!-- 作业地点 -->
         <el-select v-model="store.applicationForm.workLocation" placeholder="作业地点" required clearable>
           <el-option label="交车车间落车调车区" value="交车车间落车调车区" />
-          <el-option label="总成车间其他区域" value="总成车间其他区域" />
+          <el-option label="总成车间" value="总成车间" />
           <el-option label="老调试" value="老调试" />
           <el-option label="新调试" value="新调试" />
           <el-option label="动车组调试基地" value="动车组调试基地" />
@@ -82,11 +82,11 @@
         <template v-if="store.applicationForm.workType === '质量返工'">
           <el-select v-model="store.applicationForm.workBasis" placeholder="作业依据" required>
             <el-option label="NCR" value="NCR" />
-            <el-option label="开口项" value="开口项" />
+            <el-option label="不合格项" value="不合格项" />
             <el-option label="设计变更" value="设计变更" />
           </el-select>
 
-          <el-input v-model="store.applicationForm.basisNumber" placeholder="NCR/开口项/设计变更编号" required />
+          <el-input v-model="store.applicationForm.basisNumber" placeholder="NCR/不合格项/设计变更编号" required />
         </template>
       </div>
 
@@ -171,12 +171,12 @@ const workContentMap = {
     '设备设施调研'
   ],
   '质量返工': [
-    '来料开口项返工',
-    'Q30开口项返工',
-    'Q40开口项返工',
-    'PSI开口项返工',
-    '业主开口项返工',
-    'NCR开口项返工'
+    '来料不合格项返工',
+    'Q30不合格项返工',
+    'Q40不合格项返工',
+    'PSI不合格项返工',
+    '业主不合格项返工',
+    'NCR返工'
   ],
   '基建施工': ['建筑物及附属设施维护维修'],
   '生产设备维修': ['设备常规维护保养及故障维修'],
